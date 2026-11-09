@@ -1,0 +1,839 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>拼豆小工坊</title>
+<style>
+  :root {
+    --bg: #fbf6ef;
+    --panel: #ffffff;
+    --ink: #3b3340;
+    --muted: #8a8090;
+    --line: #ece4da;
+    --accent: #ff7a8a;
+    --accent-ink: #ffffff;
+    --board: #f4f1ec;
+    --peg: #ddd6cc;
+    --shadow: 0 6px 20px rgba(80, 60, 40, .08);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1f1c22;
+      --panel: #2a262e;
+      --ink: #f1ecf3;
+      --muted: #a69fae;
+      --line: #3a3540;
+      --accent: #ff8c9b;
+      --accent-ink: #2a1b1f;
+      --board: #34303a;
+      --peg: #4a4552;
+      --shadow: 0 6px 20px rgba(0, 0, 0, .3);
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--ink); }
+  body {
+    font-family: -apple-system, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+    min-height: 100vh;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 16px; }
+  header { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+  h1 { font-size: 22px; margin: 0; letter-spacing: .5px; }
+  h1 span { color: var(--accent); }
+  .tabs { display: flex; background: var(--panel); border: 1px solid var(--line); border-radius: 999px; padding: 4px; }
+  .tabs button { border: 0; background: none; color: var(--muted); padding: 8px 16px; border-radius: 999px; font-size: 14px; cursor: pointer; }
+  .tabs button.on { background: var(--accent); color: var(--accent-ink); font-weight: 600; }
+
+  .layout { display: grid; grid-template-columns: 1fr 280px; gap: 16px; align-items: start; }
+  @media (max-width: 820px) { .layout { grid-template-columns: 1fr; } }
+
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); padding: 14px; }
+  .board-card { padding: 12px; }
+  .board-holder { width: 100%; display: flex; justify-content: center; }
+  canvas#board { display: block; touch-action: none; border-radius: 12px; cursor: crosshair; max-width: 100%; }
+
+  .toolbar { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; justify-content: center; }
+  .btn { border: 1px solid var(--line); background: var(--panel); color: var(--ink); border-radius: 10px; padding: 8px 12px; font-size: 14px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+  .btn:hover { border-color: var(--accent); }
+  .btn.on { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  .btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+  .btn:disabled { opacity: .4; cursor: default; }
+
+  .side h3 { margin: 0 0 10px; font-size: 14px; color: var(--muted); font-weight: 600; }
+  .side .card + .card { margin-top: 12px; }
+  @media (max-width: 820px) { .palette { gap: 6px; } }
+  .palette-wrap { max-width: 380px; margin: 12px auto 0; }
+  .palette { display: grid; grid-template-columns: repeat(9, 1fr); gap: 8px; }
+  .cur { justify-content: center; }
+  .swatch { aspect-ratio: 1; border-radius: 50%; border: 2px solid rgba(0,0,0,.08); cursor: pointer; position: relative; padding: 0; }
+  .swatch::after { content: ""; position: absolute; inset: 32%; border-radius: 50%; background: var(--panel); opacity: .9; }
+  .swatch.on { outline: 3px solid var(--accent); outline-offset: 2px; }
+  .cur { display: flex; align-items: center; gap: 8px; margin-top: 10px; font-size: 13px; color: var(--muted); }
+  .cur i { width: 18px; height: 18px; border-radius: 50%; display: inline-block; border: 1px solid rgba(0,0,0,.1); }
+
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  select { border: 1px solid var(--line); background: var(--panel); color: var(--ink); border-radius: 10px; padding: 8px 10px; font-size: 14px; }
+
+  .patterns { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .pat { border: 1px solid var(--line); background: var(--board); border-radius: 12px; padding: 6px; cursor: pointer; text-align: center; font-size: 12px; color: var(--ink); }
+  .pat.on { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent) inset; }
+  .pat canvas { width: 100%; height: auto; display: block; margin-bottom: 4px; image-rendering: pixelated; }
+
+  .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 13px; }
+  .stat { background: var(--board); border-radius: 10px; padding: 8px 10px; }
+  .stat b { display: block; font-size: 18px; }
+  .bar { height: 8px; border-radius: 999px; background: var(--board); overflow: hidden; margin-top: 10px; }
+  .bar > div { height: 100%; width: 0; background: var(--accent); transition: width .2s; }
+  .hint { font-size: 12px; color: var(--muted); line-height: 1.6; margin: 8px 0 0; }
+  .count-list { display: flex; flex-wrap: wrap; gap: 6px; font-size: 12px; }
+  .count-list span { display: inline-flex; align-items: center; gap: 4px; background: var(--board); padding: 3px 8px; border-radius: 999px; }
+  .count-list i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+
+  .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%) translateY(20px); background: var(--ink); color: var(--bg); padding: 10px 18px; border-radius: 999px; font-size: 14px; opacity: 0; transition: .25s; pointer-events: none; z-index: 10; }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  .modal { position: fixed; inset: 0; background: rgba(20,15,25,.45); display: none; align-items: center; justify-content: center; z-index: 20; padding: 16px; }
+  .modal.show { display: flex; }
+  .modal .card { max-width: 340px; width: 100%; text-align: center; }
+  .modal h2 { margin: 6px 0; }
+  .stars { font-size: 34px; letter-spacing: 4px; color: #ffc53d; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>🫘 拼豆<span>小工坊</span></h1>
+    <div class="tabs">
+      <button id="tabFree" class="on">自由创作</button>
+      <button id="tabChallenge">临摹挑战</button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <div class="card board-card">
+      <div class="board-holder"><canvas id="board"></canvas></div>
+      <div class="palette-wrap">
+        <div class="palette" id="palette"></div>
+        <div class="cur">当前颜色：<i id="curDot"></i><span id="curName"></span></div>
+      </div>
+      <div class="toolbar">
+        <button class="btn on" data-tool="pen">✏️ 放豆</button>
+        <button class="btn" data-tool="eraser">🧽 拿走</button>
+        <button class="btn" data-tool="fill">🪣 填充</button>
+        <button class="btn" data-tool="picker">💧 吸色</button>
+        <button class="btn" id="undo">↩️ 撤销</button>
+        <button class="btn" id="redo">↪️ 重做</button>
+        <button class="btn" id="clear">🗑️ 清空</button>
+        <button class="btn primary" id="iron">♨️ 熨烫</button>
+        <button class="btn" id="save">💾 保存图片</button>
+      </div>
+    </div>
+
+    <div class="side">
+      <div class="card" id="freePanel">
+        <h3>豆板设置</h3>
+        <div class="row">
+          <select id="sizeSel">
+            <option value="16">16 × 16 小板</option>
+            <option value="24" selected>24 × 24 中板</option>
+            <option value="29">29 × 29 大板</option>
+          </select>
+          <button class="btn" id="mirror">🪞 左右翻转</button>
+        </div>
+        <h3 style="margin-top:14px">用豆统计</h3>
+        <div class="count-list" id="countList"></div>
+        <p class="hint">点击或拖动放豆子。做好后按「熨烫」，豆子会融在一起变成成品！作品会自动保存在本机。</p>
+      </div>
+
+      <div class="card" id="challengePanel" hidden>
+        <h3>选一张图纸</h3>
+        <div class="patterns" id="patterns"></div>
+        <div class="bar"><div id="progress"></div></div>
+        <div class="stats" style="margin-top:10px">
+          <div class="stat">完成度<b id="pct">0%</b></div>
+          <div class="stat">用时<b id="timer">0:00</b></div>
+          <div class="stat">放错<b id="wrong">0</b></div>
+          <div class="stat">剩余<b id="left">0</b></div>
+        </div>
+        <div class="row" style="margin-top:10px">
+          <button class="btn on" id="hintBtn">💡 提示：开</button>
+          <button class="btn" id="restart">🔄 重新开始</button>
+        </div>
+        <p class="hint">照着图纸把豆子放到对应位置。淡淡的小点就是提示，关掉提示挑战更高分！</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="modal" id="winModal">
+  <div class="card">
+    <div class="stars" id="winStars">★★★</div>
+    <h2>完成啦！</h2>
+    <p id="winText" class="hint" style="font-size:14px"></p>
+    <div class="row" style="justify-content:center;margin-top:12px">
+      <button class="btn primary" id="winIron">♨️ 熨烫成品</button>
+      <button class="btn" id="winNext">下一张 ▶</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  // ---------- 颜色 ----------
+  const COLORS = {
+    K: ['#2b2b2e', '黑色'],   W: ['#fafafa', '白色'],   A: ['#a7a7ad', '灰色'],
+    R: ['#e8343f', '大红'],   P: ['#ff9fbf', '粉色'],   M: ['#c2185b', '玫红'],
+    O: ['#ff8a2a', '橙色'],   Y: ['#ffd23f', '黄色'],   E: ['#f6deb6', '肤色'],
+    N: ['#8b5a3c', '咖啡'],   G: ['#45b85c', '草绿'],   D: ['#1f7a45', '深绿'],
+    L: ['#a6e3a1', '浅绿'],   B: ['#2f7de1', '蓝色'],   C: ['#8fd3ff', '天蓝'],
+    V: ['#8e5bd8', '紫色'],   U: ['#cdb4f5', '浅紫'],   T: ['#2a3d8f', '藏青'],
+  };
+  const KEYS = Object.keys(COLORS);
+
+  // ---------- 图纸（原创小图案） ----------
+  const PATTERNS = [
+    { name: '爱心', rows: [
+      '..KKK...KKK..',
+      '.KRRRK.KRRRK.',
+      'KRWRRRKRRRRRK',
+      'KRWRRRRRRRRRK',
+      'KRRRRRRRRRRRK',
+      '.KRRRRRRRRRK.',
+      '..KRRRRRRRK..',
+      '...KRRRRRK...',
+      '....KRRRK....',
+      '.....KRK.....',
+      '......K......',
+    ]},
+    { name: '草莓', rows: [
+      '....GGG....',
+      '..GGGGGGG..',
+      '...RGGGR...',
+      '..RRRRRRR..',
+      '.RRYRRRYRR.',
+      '.RRRRRYRRR.',
+      '.RYRRRRRRR.',
+      '.RRRRYRRYR.',
+      '..RRRRRRR..',
+      '..RYRRRRR..',
+      '...RRRYR...',
+      '....RRR....',
+    ]},
+    { name: '小猫', rows: [
+      '.K.........K.',
+      '.KK.......KK.',
+      '.KOK.....KOK.',
+      '.KOOKKKKKOOK.',
+      'KOOOOOOOOOOOK',
+      'KOOKOOOOOKOOK',
+      'KOOKOOOOOKOOK',
+      'KPOOOOKOOOOPK',
+      'KOOOOKOKOOOOK',
+      '.KOOOOOOOOOK.',
+      '..KKKKKKKKK..',
+    ]},
+    { name: '星星', rows: [
+      '......Y......',
+      '.....YYY.....',
+      '.....YYY.....',
+      '....YYYYY....',
+      'YYYYYYYYYYYYY',
+      '.YYYYYYYYYYY.',
+      '..YYYKYKYYY..',
+      '...YYYYYYY...',
+      '...YYYPYYY...',
+      '..YYYY.YYYY..',
+      '..YYY...YYY..',
+      '.YY.......YY.',
+    ]},
+    { name: '小蘑菇', rows: [
+      '....KKKKK....',
+      '..KKRRWRRKK..',
+      '.KRRRWWWRRRK.',
+      '.KWRRRWRRRWK.',
+      'KWWWRRRRRWWWK',
+      'KWWRRRRRRRWWK',
+      'KRRRRWWWRRRRK',
+      '.KKKEEEEEKKK.',
+      '...KEKEKEK...',
+      '...KEEEEEK...',
+      '....KKKKK....',
+    ]},
+    { name: '彩虹', rows: [
+      '...RRRRRRR...',
+      '..RROOOOORR..',
+      '.RROYYYYYORR.',
+      '.ROYYGGGYYOR.',
+      'ROYYGBBBGYYOR',
+      'ROYGB...BGYOR',
+      'ROYGB...BGYOR',
+      'WWWGB...BGWWW',
+      'WWWWW...WWWWW',
+    ]},
+  ];
+
+  // ---------- 状态 ----------
+  const $ = (id) => document.getElementById(id);
+  const canvas = $('board');
+  const ctx = canvas.getContext('2d');
+  let mode = 'free';
+  let N = 24, W = 24, H = 24;
+  let grid = [];
+  let tool = 'pen';
+  let color = 'R';
+  let ironT = 0;       // 0 = 未熨烫, 1 = 熨烫完成
+  let ironing = false;
+  let undoStack = [], redoStack = [];
+  let cell = 20;
+  let target = null, patIndex = 0, showHint = true;
+  let wrongCount = 0, startTime = 0, timerId = null, won = false;
+
+  const store = {
+    get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+    set(k, v) { try { localStorage.setItem(k, v); } catch {} },
+  };
+
+  // ---------- 声音 ----------
+  let audio = null;
+  function pop(freq = 600) {
+    try {
+      audio = audio || new (window.AudioContext || window.webkitAudioContext)();
+      const o = audio.createOscillator(), g = audio.createGain();
+      o.type = 'sine';
+      o.frequency.setValueAtTime(freq + Math.random() * 120, audio.currentTime);
+      o.frequency.exponentialRampToValueAtTime(freq * 0.5, audio.currentTime + 0.08);
+      g.gain.setValueAtTime(0.08, audio.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, audio.currentTime + 0.1);
+      o.connect(g).connect(audio.destination);
+      o.start(); o.stop(audio.currentTime + 0.11);
+    } catch {}
+  }
+
+  // ---------- 网格 ----------
+  function makeGrid(w, h) { return Array.from({ length: h }, () => Array(w).fill(null)); }
+  function cloneGrid(g) { return g.map(r => r.slice()); }
+
+  function setBoard(w, h, keep) {
+    W = w; H = h;
+    grid = keep ? keep : makeGrid(w, h);
+    undoStack = []; redoStack = [];
+    ironT = 0;
+    resize();
+  }
+
+  function resize() {
+    const holder = canvas.parentElement;
+    const maxW = holder.clientWidth;
+    const maxH = Math.max(320, window.innerHeight - 220);
+    cell = Math.floor(Math.min(maxW / W, maxH / H, 34));
+    cell = Math.max(cell, 10);
+    const dpr = window.devicePixelRatio || 1;
+    canvas.style.width = cell * W + 'px';
+    canvas.style.height = cell * H + 'px';
+    canvas.width = Math.round(cell * W * dpr);
+    canvas.height = Math.round(cell * H * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    draw();
+  }
+
+  // ---------- 绘制 ----------
+  const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+
+  function rr(c, x, y, w, h, r) {
+    r = Math.min(r, w / 2, h / 2);
+    c.beginPath();
+    c.moveTo(x + r, y);
+    c.arcTo(x + w, y, x + w, y + h, r);
+    c.arcTo(x + w, y + h, x, y + h, r);
+    c.arcTo(x, y + h, x, y, r);
+    c.arcTo(x, y, x + w, y, r);
+    c.closePath();
+  }
+
+  function shade(hex, amt) {
+    const n = parseInt(hex.slice(1), 16);
+    let r = (n >> 16) + amt, g = ((n >> 8) & 255) + amt, b = (n & 255) + amt;
+    r = Math.max(0, Math.min(255, r)); g = Math.max(0, Math.min(255, g)); b = Math.max(0, Math.min(255, b));
+    return `rgb(${r},${g},${b})`;
+  }
+
+  function drawBead(c, x, y, s, hex, t, boardColor) {
+    const cx = x + s / 2, cy = y + s / 2;
+    const half = s * (0.44 + 0.07 * t);           // 熨烫后会胀大一点、互相粘连
+    const corner = s * (0.44 - 0.3 * t);          // 圆 → 圆角方块
+    const hole = s * (0.17 - 0.1 * t);            // 中间孔变小
+    rr(c, cx - half, cy - half, half * 2, half * 2, corner);
+    c.fillStyle = hex;
+    c.fill();
+    if (t < 0.6) {
+      // 立体高光
+      c.save();
+      c.globalAlpha = 0.35 * (1 - t / 0.6);
+      c.strokeStyle = shade(hex, -40);
+      c.lineWidth = Math.max(1, s * 0.05);
+      c.stroke();
+      c.beginPath();
+      c.arc(cx - s * 0.12, cy - s * 0.12, s * 0.3, Math.PI * 1.05, Math.PI * 1.55);
+      c.strokeStyle = 'rgba(255,255,255,.9)';
+      c.lineWidth = Math.max(1, s * 0.07);
+      c.stroke();
+      c.restore();
+    }
+    if (hole > 0.5) {
+      c.beginPath();
+      c.arc(cx, cy, hole, 0, Math.PI * 2);
+      c.fillStyle = boardColor;
+      c.fill();
+    }
+  }
+
+  function draw(c = ctx, s = cell, forExport = false) {
+    const board = forExport ? '#ffffff' : css('--board');
+    const peg = css('--peg');
+    c.clearRect(0, 0, s * W, s * H);
+    c.fillStyle = board;
+    rr(c, 0, 0, s * W, s * H, forExport ? 0 : 12);
+    c.fill();
+
+    for (let y = 0; y < H; y++) {
+      for (let x = 0; x < W; x++) {
+        const k = grid[y][x];
+        if (k) continue;
+        const px = x * s + s / 2, py = y * s + s / 2;
+        if (!forExport && mode === 'challenge' && target && showHint && target[y][x]) {
+          c.beginPath();
+          c.arc(px, py, s * 0.26, 0, Math.PI * 2);
+          c.fillStyle = COLORS[target[y][x]][0];
+          c.globalAlpha = 0.4;
+          c.fill();
+          c.lineWidth = 1;
+          c.strokeStyle = 'rgba(0,0,0,.25)';
+          c.stroke();
+          c.globalAlpha = 1;
+        } else if (!forExport && ironT < 1) {
+          c.beginPath();
+          c.arc(px, py, Math.max(1, s * 0.09), 0, Math.PI * 2);
+          c.fillStyle = peg;
+          c.globalAlpha = 1 - ironT;
+          c.fill();
+          c.globalAlpha = 1;
+        }
+      }
+    }
+    for (let y = 0; y < H; y++) {
+      for (let x = 0; x < W; x++) {
+        const k = grid[y][x];
+        if (!k) continue;
+        drawBead(c, x * s, y * s, s, COLORS[k][0], ironT, board);
+        if (!forExport && mode === 'challenge' && target && target[y][x] !== k && ironT === 0) {
+          // 放错的豆子打个小叉
+          c.save();
+          c.strokeStyle = 'rgba(255,255,255,.95)';
+          c.lineWidth = Math.max(1.5, s * 0.08);
+          const p = s * 0.3;
+          c.beginPath();
+          c.moveTo(x * s + p, y * s + p); c.lineTo(x * s + s - p, y * s + s - p);
+          c.moveTo(x * s + s - p, y * s + p); c.lineTo(x * s + p, y * s + s - p);
+          c.stroke();
+          c.restore();
+        }
+      }
+    }
+  }
+
+  // ---------- 历史 ----------
+  function pushUndo() {
+    undoStack.push(cloneGrid(grid));
+    if (undoStack.length > 100) undoStack.shift();
+    redoStack = [];
+    updateButtons();
+  }
+  function undo() {
+    if (!undoStack.length || ironing) return;
+    redoStack.push(cloneGrid(grid));
+    grid = undoStack.pop();
+    ironT = 0;
+    afterChange();
+  }
+  function redo() {
+    if (!redoStack.length || ironing) return;
+    undoStack.push(cloneGrid(grid));
+    grid = redoStack.pop();
+    ironT = 0;
+    afterChange();
+  }
+  function updateButtons() {
+    $('undo').disabled = !undoStack.length;
+    $('redo').disabled = !redoStack.length;
+    $('iron').textContent = ironT === 1 ? '🔙 撕下重做' : '♨️ 熨烫';
+  }
+
+  // ---------- 操作 ----------
+  function cellAt(e) {
+    const r = canvas.getBoundingClientRect();
+    const x = Math.floor((e.clientX - r.left) / (r.width / W));
+    const y = Math.floor((e.clientY - r.top) / (r.height / H));
+    if (x < 0 || y < 0 || x >= W || y >= H) return null;
+    return [x, y];
+  }
+
+  function apply(x, y) {
+    if (tool === 'pen') {
+      if (grid[y][x] === color) return false;
+      grid[y][x] = color;
+      if (mode === 'challenge' && target && target[y][x] !== color) wrongCount++;
+      pop(520);
+      return true;
+    }
+    if (tool === 'eraser') {
+      if (!grid[y][x]) return false;
+      grid[y][x] = null;
+      pop(300);
+      return true;
+    }
+    return false;
+  }
+
+  function flood(x, y) {
+    const from = grid[y][x];
+    const to = color;
+    if (from === to) return false;
+    const st = [[x, y]];
+    let n = 0;
+    while (st.length) {
+      const [cx, cy] = st.pop();
+      if (cx < 0 || cy < 0 || cx >= W || cy >= H || grid[cy][cx] !== from) continue;
+      grid[cy][cx] = to;
+      if (mode === 'challenge' && target && target[cy][cx] !== to) wrongCount++;
+      n++;
+      st.push([cx + 1, cy], [cx - 1, cy], [cx, cy + 1], [cx, cy - 1]);
+    }
+    if (n) pop(700);
+    return n > 0;
+  }
+
+  let dragging = false, last = null, dirty = false;
+
+  canvas.addEventListener('pointerdown', (e) => {
+    if (ironing) return;
+    const p = cellAt(e);
+    if (!p) return;
+    if (ironT === 1) { toast('先「撕下重做」才能继续修改哦'); return; }
+    const [x, y] = p;
+    if (tool === 'picker') {
+      if (grid[y][x]) { selectColor(grid[y][x]); setTool('pen'); toast('吸到了：' + COLORS[grid[y][x]][1]); }
+      return;
+    }
+    if (tool === 'fill') {
+      const snap = cloneGrid(grid);
+      if (flood(x, y)) { undoStack.push(snap); redoStack = []; afterChange(); }
+      return;
+    }
+    canvas.setPointerCapture(e.pointerId);
+    dragging = true;
+    undoStack.push(cloneGrid(grid));
+    redoStack = [];
+    dirty = apply(x, y);
+    last = p;
+    draw();
+  });
+
+  canvas.addEventListener('pointermove', (e) => {
+    if (!dragging) return;
+    const p = cellAt(e);
+    if (!p) return;
+    // 在两个格子之间补点，拖得快也不会断
+    let [x0, y0] = last;
+    const [x1, y1] = p;
+    const steps = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0));
+    for (let i = 1; i <= steps; i++) {
+      const x = Math.round(x0 + (x1 - x0) * i / steps);
+      const y = Math.round(y0 + (y1 - y0) * i / steps);
+      if (apply(x, y)) dirty = true;
+    }
+    last = p;
+    draw();
+  });
+
+  const endDrag = () => {
+    if (!dragging) return;
+    dragging = false;
+    if (!dirty) undoStack.pop();
+    afterChange();
+  };
+  canvas.addEventListener('pointerup', endDrag);
+  canvas.addEventListener('pointercancel', endDrag);
+
+  function afterChange() {
+    updateButtons();
+    draw();
+    if (mode === 'free') { updateCounts(); saveLocal(); }
+    else checkChallenge();
+  }
+
+  // ---------- 熨烫动画 ----------
+  function iron() {
+    if (ironing) return;
+    const filled = grid.some(r => r.some(Boolean));
+    if (!filled) { toast('先放几颗豆子再熨烫吧'); return; }
+    const from = ironT, to = ironT === 1 ? 0 : 1;
+    ironing = true;
+    const t0 = performance.now(), dur = 900;
+    if (to === 1) toast('♨️ 熨斗加热中…');
+    const step = (now) => {
+      const k = Math.min(1, (now - t0) / dur);
+      const e = k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+      ironT = from + (to - from) * e;
+      draw();
+      if (k < 1) requestAnimationFrame(step);
+      else {
+        ironT = to; ironing = false; draw(); updateButtons();
+        if (to === 1) toast('✨ 熨好啦！可以保存图片留念');
+      }
+    };
+    requestAnimationFrame(step);
+  }
+
+  // ---------- UI ----------
+  function setTool(t) {
+    tool = t;
+    document.querySelectorAll('[data-tool]').forEach(b => b.classList.toggle('on', b.dataset.tool === t));
+    canvas.style.cursor = t === 'picker' ? 'copy' : 'crosshair';
+  }
+  document.querySelectorAll('[data-tool]').forEach(b => b.addEventListener('click', () => setTool(b.dataset.tool)));
+
+  function buildPalette() {
+    const el = $('palette');
+    el.innerHTML = '';
+    KEYS.forEach(k => {
+      const b = document.createElement('button');
+      b.className = 'swatch';
+      b.style.background = COLORS[k][0];
+      b.title = COLORS[k][1];
+      b.dataset.k = k;
+      b.addEventListener('click', () => { selectColor(k); if (tool === 'eraser' || tool === 'picker') setTool('pen'); });
+      el.appendChild(b);
+    });
+    selectColor(color);
+  }
+  function selectColor(k) {
+    color = k;
+    document.querySelectorAll('.swatch').forEach(s => s.classList.toggle('on', s.dataset.k === k));
+    $('curDot').style.background = COLORS[k][0];
+    $('curName').textContent = COLORS[k][1];
+  }
+
+  function updateCounts() {
+    const cnt = {};
+    let total = 0;
+    grid.forEach(r => r.forEach(k => { if (k) { cnt[k] = (cnt[k] || 0) + 1; total++; } }));
+    const el = $('countList');
+    if (!total) { el.innerHTML = '<span>还没有放豆子</span>'; return; }
+    el.innerHTML = `<span><b>共 ${total} 颗</b></span>` + KEYS.filter(k => cnt[k])
+      .map(k => `<span><i style="background:${COLORS[k][0]}"></i>${COLORS[k][1]} ${cnt[k]}</span>`).join('');
+  }
+
+  let toastTimer;
+  function toast(msg) {
+    const t = $('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 1800);
+  }
+
+  function saveLocal() {
+    store.set('pindou-free', JSON.stringify({ W, H, grid }));
+  }
+  function loadLocal() {
+    try {
+      const d = JSON.parse(store.get('pindou-free'));
+      if (d && d.grid && d.W && d.H) return d;
+    } catch {}
+    return null;
+  }
+
+  function exportPNG() {
+    const s = 32;
+    const off = document.createElement('canvas');
+    off.width = W * s; off.height = H * s;
+    draw(off.getContext('2d'), s, true);
+    const a = document.createElement('a');
+    a.download = '我的拼豆.png';
+    a.href = off.toDataURL('image/png');
+    a.click();
+    toast('图片已保存');
+  }
+
+  // ---------- 模式 ----------
+  function switchMode(m) {
+    if (ironing) return;
+    mode = m;
+    $('tabFree').classList.toggle('on', m === 'free');
+    $('tabChallenge').classList.toggle('on', m === 'challenge');
+    $('freePanel').hidden = m !== 'free';
+    $('challengePanel').hidden = m !== 'challenge';
+    stopTimer();
+    if (m === 'free') {
+      target = null;
+      const d = loadLocal();
+      if (d) { $('sizeSel').value = String(d.W); setBoard(d.W, d.H, d.grid); }
+      else setBoard(N, N);
+      updateCounts();
+    } else {
+      startPattern(patIndex);
+    }
+    updateButtons();
+  }
+
+  function patternGrid(p) {
+    return p.rows.map(r => r.split('').map(ch => (ch === '.' ? null : ch)));
+  }
+
+  function buildPatterns() {
+    const el = $('patterns');
+    el.innerHTML = '';
+    PATTERNS.forEach((p, i) => {
+      const b = document.createElement('button');
+      b.className = 'pat';
+      const cv = document.createElement('canvas');
+      const g = patternGrid(p), s = 6;
+      cv.width = g[0].length * s; cv.height = g.length * s;
+      const c = cv.getContext('2d');
+      g.forEach((r, y) => r.forEach((k, x) => {
+        if (!k) return;
+        c.fillStyle = COLORS[k][0];
+        c.beginPath(); c.arc(x * s + s / 2, y * s + s / 2, s * 0.46, 0, Math.PI * 2); c.fill();
+      }));
+      b.appendChild(cv);
+      b.appendChild(document.createTextNode(p.name));
+      b.addEventListener('click', () => startPattern(i));
+      el.appendChild(b);
+    });
+  }
+
+  function startPattern(i) {
+    patIndex = i;
+    document.querySelectorAll('.pat').forEach((b, j) => b.classList.toggle('on', j === i));
+    target = patternGrid(PATTERNS[i]);
+    setBoard(target[0].length, target.length);
+    wrongCount = 0; won = false;
+    stopTimer();
+    startTime = 0;
+    $('timer').textContent = '0:00';
+    // 默认选中图纸里的第一个颜色
+    const first = target.flat().find(Boolean);
+    if (first) selectColor(first);
+    setTool('pen');
+    checkChallenge();
+    updateButtons();
+  }
+
+  function startTimer() {
+    if (timerId) return;
+    startTime = Date.now();
+    timerId = setInterval(() => { $('timer').textContent = fmt(Date.now() - startTime); }, 500);
+  }
+  function stopTimer() { clearInterval(timerId); timerId = null; }
+  function fmt(ms) { const s = Math.floor(ms / 1000); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; }
+
+  function checkChallenge() {
+    if (!target) return;
+    let need = 0, ok = 0, extra = 0, any = false;
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+      const t = target[y][x], g = grid[y][x];
+      if (g) any = true;
+      if (t) { need++; if (g === t) ok++; }
+      if (g && g !== t) extra++;
+    }
+    if (any && !timerId && !won) startTimer();
+    const pct = Math.round(ok / need * 100);
+    $('progress').style.width = pct + '%';
+    $('pct').textContent = pct + '%';
+    $('wrong').textContent = wrongCount;
+    $('left').textContent = need - ok + extra;
+    if (ok === need && extra === 0 && !won) {
+      won = true;
+      stopTimer();
+      const time = Date.now() - startTime;
+      let stars = 3;
+      if (wrongCount > 3) stars--;
+      if (wrongCount > 10) stars--;
+      if (!showHint && stars < 3) stars++;
+      $('winStars').textContent = '★'.repeat(stars) + '☆'.repeat(3 - stars);
+      $('winText').textContent = `「${PATTERNS[patIndex].name}」完成！用时 ${fmt(time)}，放错 ${wrongCount} 次${showHint ? '' : '，无提示挑战 +1 星'}。`;
+      const best = store.get('pindou-best-' + patIndex);
+      if (!best || stars > +best) store.set('pindou-best-' + patIndex, stars);
+      setTimeout(() => { $('winModal').classList.add('show'); pop(880); setTimeout(() => pop(1175), 120); }, 250);
+    }
+  }
+
+  // ---------- 绑定 ----------
+  $('tabFree').addEventListener('click', () => switchMode('free'));
+  $('tabChallenge').addEventListener('click', () => switchMode('challenge'));
+  $('undo').addEventListener('click', undo);
+  $('redo').addEventListener('click', redo);
+  $('clear').addEventListener('click', () => {
+    if (ironing || !grid.some(r => r.some(Boolean))) return;
+    pushUndo();
+    grid = makeGrid(W, H);
+    ironT = 0;
+    afterChange();
+    toast('已清空，可以撤销');
+  });
+  $('iron').addEventListener('click', iron);
+  $('save').addEventListener('click', exportPNG);
+  $('sizeSel').addEventListener('change', (e) => {
+    const n = +e.target.value;
+    const old = grid, ow = W, oh = H;
+    const g = makeGrid(n, n);
+    // 把原来的作品居中搬过去
+    const ox = Math.floor((n - ow) / 2), oy = Math.floor((n - oh) / 2);
+    for (let y = 0; y < oh; y++) for (let x = 0; x < ow; x++) {
+      const nx = x + ox, ny = y + oy;
+      if (old[y][x] && nx >= 0 && ny >= 0 && nx < n && ny < n) g[ny][nx] = old[y][x];
+    }
+    N = n;
+    setBoard(n, n, g);
+    afterChange();
+  });
+  $('mirror').addEventListener('click', () => {
+    if (ironing || ironT === 1) return;
+    pushUndo();
+    grid = grid.map(r => r.slice().reverse());
+    afterChange();
+  });
+  $('hintBtn').addEventListener('click', () => {
+    showHint = !showHint;
+    $('hintBtn').textContent = showHint ? '💡 提示：开' : '💡 提示：关';
+    $('hintBtn').classList.toggle('on', showHint);
+    draw();
+  });
+  $('restart').addEventListener('click', () => startPattern(patIndex));
+  $('winIron').addEventListener('click', () => { $('winModal').classList.remove('show'); iron(); });
+  $('winNext').addEventListener('click', () => { $('winModal').classList.remove('show'); startPattern((patIndex + 1) % PATTERNS.length); });
+
+  window.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') { e.preventDefault(); e.shiftKey ? redo() : undo(); }
+    else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y') { e.preventDefault(); redo(); }
+    else if (e.key === 'b') setTool('pen');
+    else if (e.key === 'e') setTool('eraser');
+    else if (e.key === 'g') setTool('fill');
+    else if (e.key === 'i') setTool('picker');
+  });
+  let rt;
+  window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(resize, 100); });
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', () => draw());
+
+  // ---------- 启动 ----------
+  buildPalette();
+  buildPatterns();
+  switchMode('free');
+})();
+</script>
+</body>
+</html>
