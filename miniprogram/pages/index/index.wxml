@@ -1,0 +1,123 @@
+<view class="page">
+  <view class="header">
+    <view class="title">快来<text class="accent">拼豆吧</text></view>
+    <view class="tabs">
+      <view class="tab {{mode === 'free' ? 'on' : ''}}" data-m="free" bindtap="onTab">自由创作</view>
+      <view class="tab {{mode === 'challenge' ? 'on' : ''}}" data-m="challenge" bindtap="onTab">临摹挑战</view>
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="board-holder">
+      <canvas
+        type="2d"
+        id="board"
+        class="board"
+        disable-scroll="true"
+        style="width:{{canvasW}}px;height:{{canvasH}}px"
+        bindtouchstart="onStart"
+        bindtouchmove="onMove"
+        bindtouchend="onEnd"
+        bindtouchcancel="onEnd"
+      ></canvas>
+    </view>
+
+    <view class="palette">
+      <view
+        wx:for="{{keys}}"
+        wx:key="k"
+        class="swatch {{color === item.k ? 'on' : ''}}"
+        style="background:{{item.hex}}"
+        data-k="{{item.k}}"
+        bindtap="onColor"
+      ><view class="hole"></view></view>
+    </view>
+    <view class="cur">当前颜色：<view class="dot" style="background:{{curHex}}"></view>{{curName}}</view>
+
+    <view class="toolbar">
+      <view
+        wx:for="{{tools}}"
+        wx:key="id"
+        class="btn {{tool === item.id ? 'on' : ''}}"
+        data-t="{{item.id}}"
+        bindtap="onTool"
+      >{{item.label}}</view>
+      <view class="btn {{canUndo ? '' : 'dis'}}" bindtap="undo">↩️ 撤销</view>
+      <view class="btn {{canRedo ? '' : 'dis'}}" bindtap="redo">↪️ 重做</view>
+      <view class="btn" bindtap="onClear">🗑️ 清空</view>
+      <view class="btn primary" bindtap="iron">{{ironed ? '🔙 撕下重做' : '♨️ 熨烫'}}</view>
+      <view class="btn" bindtap="onSave">💾 存到相册</view>
+    </view>
+  </view>
+
+  <view class="card" wx:if="{{mode === 'free'}}">
+    <view class="h3">豆板大小</view>
+    <view class="row">
+      <view
+        wx:for="{{sizes}}"
+        wx:key="*this"
+        class="chip {{size === item ? 'on' : ''}}"
+        data-n="{{item}}"
+        bindtap="onSize"
+      >{{item}} × {{item}}</view>
+      <view class="chip" bindtap="onMirror">🪞 左右翻转</view>
+    </view>
+    <view class="h3 mt">用豆统计</view>
+    <view class="counts">
+      <view class="count" wx:if="{{!total}}">还没有放豆子</view>
+      <block wx:else>
+        <view class="count"><text class="b">共 {{total}} 颗</text></view>
+        <view class="count" wx:for="{{counts}}" wx:key="k">
+          <view class="cdot" style="background:{{item.hex}}"></view>{{item.name}} {{item.n}}
+        </view>
+      </block>
+    </view>
+    <view class="hint">点一下放一颗豆，按住拖动可以连着放。做好后按「熨烫」，豆子会融在一起变成成品！作品会自动保存。</view>
+  </view>
+
+  <view class="card" wx:else>
+    <view class="h3">选一张图纸</view>
+    <view class="patterns">
+      <view
+        wx:for="{{thumbs}}"
+        wx:key="name"
+        wx:for-index="pi"
+        class="pat {{patIndex === pi ? 'on' : ''}}"
+        data-i="{{pi}}"
+        bindtap="onPattern"
+      >
+        <view class="thumb">
+          <view class="trow" wx:for="{{item.rows}}" wx:for-item="row" wx:for-index="ri" wx:key="ri">
+            <view class="tdot" wx:for="{{row}}" wx:for-item="c" wx:for-index="ci" wx:key="ci" style="background:{{c}}"></view>
+          </view>
+        </view>
+        <view class="pname">{{item.name}}{{item.best ? ' ' + item.best : ''}}</view>
+      </view>
+    </view>
+    <view class="bar"><view class="bar-in" style="width:{{pct}}%"></view></view>
+    <view class="stats">
+      <view class="stat">完成度<view class="big">{{pct}}%</view></view>
+      <view class="stat">用时<view class="big">{{timer}}</view></view>
+      <view class="stat">放错<view class="big">{{wrong}}</view></view>
+      <view class="stat">剩余<view class="big">{{left}}</view></view>
+    </view>
+    <view class="row mt">
+      <view class="chip {{showHint ? 'on' : ''}}" bindtap="onHint">💡 提示：{{showHint ? '开' : '关'}}</view>
+      <view class="chip" bindtap="onRestart">🔄 重新开始</view>
+    </view>
+    <view class="hint">照着图纸把豆子放到对应位置。淡淡的小点就是提示，关掉提示完成能多拿一颗星！</view>
+  </view>
+
+  <view class="modal" wx:if="{{win}}">
+    <view class="modal-card">
+      <view class="stars">{{winStars}}</view>
+      <view class="win-title">完成啦！</view>
+      <view class="win-text">{{winText}}</view>
+      <view class="row center">
+        <view class="btn primary" bindtap="onWinIron">♨️ 熨烫成品</view>
+        <view class="btn" bindtap="onWinNext">下一张 ▶</view>
+      </view>
+      <button class="share" open-type="share">📤 分享给好友</button>
+    </view>
+  </view>
+</view>

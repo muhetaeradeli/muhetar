@@ -1,0 +1,12 @@
+{
+  "pages": ["pages/index/index"],
+  "window": {
+    "navigationBarTitleText": "快来拼豆吧",
+    "navigationBarBackgroundColor": "#fbf6ef",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#fbf6ef"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
+}

@@ -1,0 +1,16 @@
+{
+  "appid": "touristappid",
+  "projectname": "kuailaipindouba",
+  "description": "快来拼豆吧 - 拼豆小游戏",
+  "compileType": "miniprogram",
+  "libVersion": "3.3.4",
+  "setting": {
+    "es6": true,
+    "enhance": true,
+    "postcss": true,
+    "minified": true,
+    "urlCheck": true
+  },
+  "condition": {},
+  "editorSetting": { "tabIndent": "insertSpaces", "tabSize": 2 }
+}
