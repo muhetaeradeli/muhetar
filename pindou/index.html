@@ -18,7 +18,7 @@
     --shadow: 0 6px 20px rgba(80, 60, 40, .08);
   }
   @media (prefers-color-scheme: dark) {
-    :root {
+    :root:not([data-theme="light"]) {
       --bg: #1f1c22;
       --panel: #2a262e;
       --ink: #f1ecf3;
@@ -30,6 +30,18 @@
       --peg: #4a4552;
       --shadow: 0 6px 20px rgba(0, 0, 0, .3);
     }
+  }
+  :root[data-theme="dark"] {
+    --bg: #1f1c22;
+    --panel: #2a262e;
+    --ink: #f1ecf3;
+    --muted: #a69fae;
+    --line: #3a3540;
+    --accent: #ff8c9b;
+    --accent-ink: #2a1b1f;
+    --board: #34303a;
+    --peg: #4a4552;
+    --shadow: 0 6px 20px rgba(0, 0, 0, .3);
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; background: var(--bg); color: var(--ink); }
@@ -662,11 +674,22 @@
     const off = document.createElement('canvas');
     off.width = W * s; off.height = H * s;
     draw(off.getContext('2d'), s, true);
-    const a = document.createElement('a');
-    a.download = '我的拼豆.png';
-    a.href = off.toDataURL('image/png');
-    a.click();
-    toast('图片已保存');
+    off.toBlob(async (blob) => {
+      if (!blob) return;
+      if (window.claude && window.claude.use) {
+        const dl = await window.claude.use('downloads');
+        if (!dl) { toast('这里暂时不能保存图片'); return; }
+        try { await dl.save({ filename: '我的拼豆.png', data: blob }); toast('图片已保存'); }
+        catch (e) { if (e && e.code !== 'declined') toast('保存失败，请稍后再试'); }
+        return;
+      }
+      const a = document.createElement('a');
+      a.download = '我的拼豆.png';
+      a.href = URL.createObjectURL(blob);
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      toast('图片已保存');
+    }, 'image/png');
   }
 
   // ---------- 模式 ----------
