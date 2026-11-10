@@ -1,3 +1,5 @@
 out/
 voices/*.onnx
 node_modules/
+my-music/*
+!my-music/.gitkeep

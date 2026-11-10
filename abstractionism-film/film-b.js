@@ -355,6 +355,7 @@
     K.text(ctx, 'түстің өзі сөйлей алатынын көрсетті.', 960, 376, { size: 58, weight: 800, shadow: 26, alpha: K.u(t, e1.t + 0.5, e1.t + 1.3) * a });
     K.track(ctx, 'Назарларыңызға рахмет!', 960, 330, t, e2.t, { size: 84, weight: 800, spacing: 2, wide: 20, shadow: 30 });
     K.rect(ctx, 960 - 200 * K.out(t, e2.t + 0.4, e2.t + 1.8), 400, 400 * K.out(t, e2.t + 0.4, e2.t + 1.8), 3, C.gold);
-    K.text(ctx, 'Картиналар: Wikimedia Commons, қоғамдық игілік  ·  Музыка: домбыра сарынындағы төл күй', 960, 452, { size: 24, weight: 400, color: '#F6E9CC', shadow: 12, alpha: K.u(t, e2.t + 2, e2.t + 3) });
+    K.text(ctx, 'Дайындағандар:  Әділ Мұхтар  ·  Сәлімгерей Қарақат', 960, 458, { size: 34, weight: 700, color: '#FFF4D6', shadow: 16, alpha: K.u(t, e2.t + 1.4, e2.t + 2.4) });
+    K.text(ctx, 'Музыка: Құрманғазы — «Адай» күйі, орындаған 才布克加甫   ·   Картиналар: Wikimedia Commons, қоғамдық игілік', 960, 512, { size: 22, weight: 400, color: '#F6E9CC', shadow: 12, alpha: K.u(t, e2.t + 2.2, e2.t + 3.2) });
   };
 })();

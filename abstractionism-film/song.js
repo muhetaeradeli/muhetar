@@ -141,7 +141,7 @@ MIX.duck(music, voice, { depth: 0.55, attack: 0.03, release: 0.6, threshold: 0.0
 const room = reverb(verb, { room: 0.8, damp: 0.35 });
 
 const stems = { dombra, drone, drum, fx, voice, voiceRoom, room, own };
-const GAIN = { dombra: 1.7, drone: 3.5, drum: 0.9, fx: 1, voice: 2.3, voiceRoom: 0.12, room: 0.5, own: 1.0 };
+const GAIN = { dombra: 1.7, drone: 3.5, drum: 0.9, fx: 1, voice: 2.3, voiceRoom: 0.12, room: 0.5, own: 2.3 };
 const mix = MIX.mixdown(stems, GAIN, { stemDir: process.env.STEMS ? path.join(__dirname, 'out') : null });
 MIX.highpass(mix, 28);
 MIX.fadeOut(mix, DURATION - 2.5, DURATION - 0.1);
