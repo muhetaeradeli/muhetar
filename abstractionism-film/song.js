@@ -118,13 +118,30 @@ for (const l of sc.lines) {
 { let p = 0; for (let i = 0; i < N; i++) p = Math.max(p, Math.abs(voice.L[i])); if (p > 0) voice.applyGain(() => 0.5 / p); }
 const voiceRoom = reverb(voice, { room: 0.35, damp: 0.6 });
 
+// YOUR OWN MUSIC: an audio file in my-music/ (for example a recording of the kui «Адай») replaces the
+// synthesized kui. It loops to the length of the film, dips for the Black Square and ducks under the voice.
+const own = bus();
+const mmDir = path.join(__dirname, 'my-music');
+const mmFile = fs.existsSync(mmDir) ? fs.readdirSync(mmDir).filter((f) => /\.(mp3|wav|m4a|ogg|flac|aac|opus)$/i.test(f)).sort()[0] : null;
+if (mmFile) {
+  const src = MIX.loadAudio(path.join(mmDir, mmFile)), X = Math.round(2.5 * SR), start = Math.round(0.6 * SR);
+  let p = 0; for (let i = 0; i < src.n; i++) p = Math.max(p, Math.abs(src.L[i]), Math.abs(src.R[i]));
+  const g = p > 0 ? 0.6 / p : 1, hop = Math.max(X * 2, src.n - X);
+  for (let o = start; o < N; o += hop) for (let i = 0; i < src.n && o + i < N; i++) {
+    const w = Math.min(1, i / X, (src.n - i) / X); own.L[o + i] += src.L[i] * g * w; own.R[o + i] += src.R[i] * g * w;
+  }
+  own.applyGain((t) => { const d = Math.min(Math.max((ev.square - t) / 1.2, 0), 1), u = Math.min(Math.max((t - ev.square - 4.5) / 2, 0), 1); return Math.max(0.12, t < ev.square ? d : u) * Math.min(1, t / 2); });
+  for (const b of [dombra, drone, verb]) b.applyGain(() => 0);
+  console.log('music: my-music/' + mmFile);
+}
+
 // the music steps back under the voice, and fully returns in the music-only holds
-const music = [dombra, drone, drum, verb];
+const music = [dombra, drone, drum, verb, own];
 MIX.duck(music, voice, { depth: 0.55, attack: 0.03, release: 0.6, threshold: 0.015 });
 const room = reverb(verb, { room: 0.8, damp: 0.35 });
 
-const stems = { dombra, drone, drum, fx, voice, voiceRoom, room };
-const GAIN = { dombra: 1.7, drone: 3.5, drum: 0.9, fx: 1, voice: 2.3, voiceRoom: 0.12, room: 0.5 };
+const stems = { dombra, drone, drum, fx, voice, voiceRoom, room, own };
+const GAIN = { dombra: 1.7, drone: 3.5, drum: 0.9, fx: 1, voice: 2.3, voiceRoom: 0.12, room: 0.5, own: 1.0 };
 const mix = MIX.mixdown(stems, GAIN, { stemDir: process.env.STEMS ? path.join(__dirname, 'out') : null });
 MIX.highpass(mix, 28);
 MIX.fadeOut(mix, DURATION - 2.5, DURATION - 0.1);
