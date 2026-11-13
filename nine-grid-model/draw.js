@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { BASE, CY, DISC, MOON, BAND, CELLS } from './shapes.js';
+import { BASE, CY, DISC, MOON, EDGE, C0, CELLS } from './shapes.js';
 
 const SEG = 96;
 const RED = '#c0392b';
@@ -130,8 +130,8 @@ function plan(cell) {
   });
 
   const g = el(svg, 'g', {});
-  const D = DISC, M = MOON, B = BAND;
-  const xl = M.x - M.r, xr = D.x + B.ro;
+  const D = DISC, M = MOON, E = EDGE;
+  const xl = M.x - M.r, xr = D.x + D.r;
 
   dim(g, 0, -12, BASE, -12, '底板 210', { dy: -2 });
   dim(g, -14, CY - M.r, -14, CY + M.r, '月牙 高 150', { dx: -4, rot: -90 });
@@ -139,7 +139,7 @@ function plan(cell) {
     el(g, 'line', { x1: -17, y1: Y(CY + s * M.r), x2: M.x, y2: Y(CY + s * M.r), stroke: RED, 'stroke-width': 0.2, 'stroke-dasharray': '1.5 1.5' });
   }
   dim(g, 0, BASE + 12, xl, BASE + 12, `${xl}`, { dy: -2 });
-  dim(g, xl, BASE + 12, xr, BASE + 12, `总宽 ${xr - xl}`, { dy: -2 });
+  dim(g, xl, BASE + 12, xr, BASE + 12, `月牙 + 圆 ${xr - xl}`, { dy: -2 });
   dim(g, xr, BASE + 12, BASE, BASE + 12, `${BASE - xr}`, { dy: -2 });
 
   // 月牙最宽处、空隙
@@ -153,29 +153,29 @@ function plan(cell) {
     el(g, 'line', { x1: x, y1: Y(CY), x2: x, y2: Y(CY - 54), stroke: RED, 'stroke-width': 0.2, 'stroke-dasharray': '1.5 1.5' });
   }
 
-  // 入口：月牙尖 ↔ 弧带端头
-  const moonShape = cell.parts.find((p) => !p.fixed).shape;
-  const tip = moonShape.userData;
-  const a = (cell.bandA * Math.PI) / 180;
-  const ex = D.x + B.ri * Math.cos(a), ey = B.ri * Math.sin(a);
-  const gate = Math.hypot(ex - tip.tipX, ey - tip.tipY);
-  label(g, D.x + 40, Y(CY + 76), `入口 ≈ ${gate.toFixed(0)}`);
-  label(g, D.x + 40, Y(CY - 80), `入口 ≈ ${gate.toFixed(0)}`);
-  label(g, D.x + 52, Y(CY - 66), `弧带 R${B.ri}–R${B.ro} · ±${cell.bandA}°`, { size: 4.2 });
+  // 外圈花边
+  for (const r of [E.ri, E.ro]) {
+    el(g, 'circle', { cx: C0, cy: Y(CY), r, fill: 'none', stroke: RED, 'stroke-width': 0.2, 'stroke-dasharray': '1.5 1.5' });
+  }
+  el(g, 'circle', { cx: C0, cy: Y(CY), r: 0.9, fill: RED });
+  label(g, C0, Y(CY) + 7, '底板中心', { size: 3.8 });
+  const q = Math.SQRT1_2;
+  dim(g, C0 + E.ri * q, CY - E.ri * q, C0 + E.ro * q, CY - E.ro * q, '', {});
+  label(g, BASE + 4, BASE + 1, `花边 R${E.ri}–R${E.ro}`, { size: 4.2 });
+  label(g, BASE + 4, BASE + 7, '宽 10', { size: 4.2 });
 
   // 顶面高度
   const hgt = (x, y, s, o = {}) => label(g, x, Y(y) + 1.7, s, { fill: '#1d3f66', halo: 'none', bold: true, size: 5, ...o });
   if (cell.n === 1) {
-    hgt(50, CY, '+5'); hgt(D.x + 58, CY, '+5');
+    hgt(50, CY, '+5');
     hgt(D.x, CY + 8, '+10', { fill: '#555' }); hgt(D.x, CY - 38, '+5', { fill: '#555' });
   }
   if (cell.n === 2) {
-    hgt(37.5, CY, '+5'); hgt(67.5, CY, '+10'); hgt(D.x + 58, CY, '+5');
+    hgt(37.5, CY, '+5'); hgt(67.5, CY, '+10');
     hgt(D.x, CY + 8, '+5', { fill: '#555' }); hgt(D.x, CY - 32.5, '+10', { fill: '#555' }); hgt(D.x, CY - 41, '+15', { fill: '#555' });
   }
   if (cell.n === 3) {
     hgt(34, CY, '+5'); hgt(52, CY, '+10'); hgt(78, CY, '+15');
-    hgt(D.x + 58, CY, '+15'); hgt(D.x + 39, CY + 39, '+10'); hgt(D.x + 21, CY + 54, '+5');
     hgt(D.x - 34, CY - 18, '+15', { fill: '#555' }); hgt(D.x - 12, CY - 20, '+20', { fill: '#555' }); hgt(156, CY + 8, '+25', { fill: '#555' });
   }
   label(g, D.x, Y(CY - 14), cell.n === 3 ? '' : '已做好 R45', { fill: '#555', size: 4.4, halo: 'none' });
