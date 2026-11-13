@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>第 1–3 格 · 基础图形</title>
+<style>
+  :root { --ink:#2b2b2b; --mute:#777; --red:#c0392b; --paper:#f6f4ef; --line:#d9d6ce; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--paper); color:var(--ink);
+         font-family:"Noto Sans CJK SC","Source Han Sans SC","WenQuanYi Zen Hei","PingFang SC","Microsoft YaHei",sans-serif; }
+  #sheet { width:2000px; padding:28px 26px 26px; }
+  h1 { margin:0; font-size:34px; letter-spacing:1px; }
+  .lead { margin:6px 0 22px; font-size:17px; color:var(--mute); }
+  .row { display:grid; grid-template-columns:repeat(3,1fr); gap:26px; margin-bottom:26px; }
+  .cell { position:relative; border:2px solid var(--line); background:#f7f5f1; height:560px; overflow:hidden; }
+  .cell.plan { height:640px; }
+  .head { position:absolute; left:12px; top:10px; display:flex; align-items:center; gap:10px; z-index:2; }
+  .num { width:40px; height:40px; border-radius:50%; background:var(--ink); color:#fff;
+         font-size:23px; font-weight:700; display:flex; align-items:center; justify-content:center; }
+  .head b { font-size:21px; }
+  .head span { font-size:15px; color:var(--mute); }
+  .note { position:absolute; left:14px; bottom:9px; right:14px; font-size:16px; color:var(--red); z-index:2; }
+  canvas, svg { position:absolute; inset:0; width:100%; height:100%; }
+  .foot { font-size:16px; color:#444; line-height:1.7; }
+  svg text { font-family:inherit; }
+</style>
+</head>
+<body>
+<div id="sheet">
+  <h1>第 1–3 格 · 基础图形（放大版）</h1>
+  <p class="lead">底板 210 × 210 mm　图形放大到 183 × 150，占满底板　月牙高 150 mm　右侧加弧带把月牙和圆围起来　单位 mm</p>
+  <div class="row" id="axon"></div>
+  <div class="row" id="plan"></div>
+  <div class="foot">
+    围合方式：左边是月牙，右边加一条与主圆同心的弧带（R56–R68），两者之间上下各留一个约 25 mm 的缺口当入口。<br>
+    三格的外轮廓完全一样（都压在 R75 月牙外圆、R40 主圆、R68 弧带这三条线上），方便后面第 4–9 格在同一位置立墙、加屋顶。
+  </div>
+</div>
+<script type="importmap">{ "imports": { "three": "./node_modules/three/build/three.module.js" } }</script>
+<script type="module" src="./draw.js"></script>
+</body>
+</html>
