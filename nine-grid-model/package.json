@@ -1,7 +1,13 @@
 {
   "name": "nine-grid-model",
   "private": true,
+  "type": "module",
   "description": "九宫格模型图纸：第 1–3 格基础图形",
-  "scripts": { "render": "node render.js" },
-  "dependencies": { "three": "^0.187.0" }
+  "scripts": {
+    "render": "node render.cjs"
+  },
+  "dependencies": {
+    "polygon-clipping": "^0.15.7",
+    "three": "^0.187.0"
+  }
 }

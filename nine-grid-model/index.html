@@ -29,18 +29,18 @@
 </head>
 <body>
 <div id="sheet">
-  <h1>第一阶段 · 地形（第 1–3 格）— 月牙放大 + 外圈平面环</h1>
-  <p class="lead legend">底板 210 × 210 mm　单位 mm　每级 5 mm<i style="background:#fcfbf8"></i>圆的底座：已做好，不动<i style="background:#c9dcf2"></i>月牙 + 外圈平面环：新做（实际模型全部用白色）</p>
+  <h1>第一阶段 · 地形（第 1–3 格）— 按你画的板修改：弧带往外扩成一整圈平面</h1>
+  <p class="lead legend">底板 210 × 210 mm　单位 mm　每级 5 mm　方向和你板上一样（月牙在上，圆在下）<i style="background:#fcfbf8"></i>已做好：圆底座、原小月牙、连接条<i style="background:#c9dcf2"></i>新做：大月牙、外圈平面、弧带（实际模型全部白色）</p>
   <div class="row" id="axon"></div>
   <div class="row" id="plan"></div>
   <div class="row" id="sec"></div>
   <div class="foot">
-    月牙：外圆 R75（圆心离底板左边 100，在中轴线上）→ 高 150；内弧和已做好的圆同心，所以空隙处处一样宽：20 → 10 → 0，三格越靠越近，到第 3 格贴上去变成台阶。<br>
-    外圈平面环：以底板正中心为圆心，一整圈连续的平面（R84–R102，宽 18，离底板边 3），不断开，把月牙和圆整个围在里面（它们全部落在 R80 以内）。图案是环上开的小圆孔：4 个 → 8 个 → 8 个且外沿再抬高一级。<br>
-    圆底座的尺寸是我从你的图上量出来的（R45，圆心离左边 140；第 3 格上面两层 R35、R25，各向右偏 8）。动手前请拿实物核对一下，有出入告诉我。
+    你画的线全部保留：大月牙（外圆 R75，长 150）、圆底座、弧带（R54–R62）都和板上的铅笔线一致。<br>
+    扩展的地方：把弧带的内沿线往外推，变成一整圈连续的平面（以板中心为圆心 Ø200，离板边 5）。它从圆的下面一直绕到月牙后面，中间不断开；和大月牙之间只留一条 5 mm 的缝。弧带不再单独立在板上，而是压在这片平面上高一级，当作平面上的“图案”。<br>
+    大月牙要让开原来已粘好的小月牙和连接条（第 1、2 格），切的时候沿它们外面留 1.5 mm。小月牙的位置是从照片估的，以板上实物为准。
   </div>
 </div>
-<script type="importmap">{ "imports": { "three": "./node_modules/three/build/three.module.js" } }</script>
+<script type="importmap">{ "imports": { "three": "./node_modules/three/build/three.module.js", "polygon-clipping": "./node_modules/polygon-clipping/dist/polygon-clipping.esm.js", "splaytree": "./node_modules/splaytree/dist/splaytree.js", "robust-predicates": "./node_modules/robust-predicates/index.js" } }</script>
 <script type="module" src="./draw.js"></script>
 </body>
 </html>

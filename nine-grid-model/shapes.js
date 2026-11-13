@@ -1,110 +1,100 @@
 // 第一阶段 · 地形（第 1–3 格）。单位 mm，底板 210 × 210，原点在左下角。
-// 圆的底座 (fixed) 已经做好，不动；月牙和外圈花边 (new) 是重新设计的。
-// 平面图、剖面、轴测图共用这一份数据。
+// 方向和你画在板上的一样：月牙在上，圆在下，弧带在圆的下面。
+// fixed = 已经做好 / 已粘上的（圆底座、原来的小月牙、连接条），不动。
 import * as THREE from 'three';
+import pc from 'polygon-clipping';
 
 export const BASE = 210;
-export const CY = 105;                    // 所有图形共用的水平中轴线
-export const DISC = { x: 140, r: 45 };    // 已做好的主圆：圆心离左边 140，R45
-export const MOON = { x: 100, r: 75 };    // 月牙外圆：圆心离左边 100，R75 → 高 150
-export const C0 = 105;                    // 花边环的圆心 = 底板正中心
-export const EDGE = { ri: 84, ro: 102, rm: 93 }; // 外圈平面环：R84–R102，宽 18；月牙和圆全部落在 R80 以内
+export const CX = 105;                       // 竖向中轴线
+export const C0 = { x: 105, y: 105, r: 100 }; // 外圈平面：底板中心，R100（离板边 5）
+export const DISC = { x: 105, y: 70, r: 45 }; // 已做好的圆底座
+export const MOON = { x: 105, y: 110, r: 75 };// 大月牙外圆 R75 → 长 150
+export const CUT = 5;                          // 大月牙和外圈平面之间的缝
+export const BAND = { ri: 54, ro: 62 };        // 你画的弧带（与圆同心）
 
-const rad = (d) => (d * Math.PI) / 180;
+// ---------- 多边形布尔运算 ----------
+const N = 360;
+export function circ(x, y, r) {
+  const ring = [];
+  for (let i = 0; i < N; i++) { const a = (i / N) * 2 * Math.PI; ring.push([x + r * Math.cos(a), y + r * Math.sin(a)]); }
+  ring.push(ring[0]);
+  return [[ring]];
+}
+function sector(x, y, ri, ro, a0, a1) {          // 角度：0° 朝右，逆时针
+  const pts = [], n = Math.max(8, Math.ceil(Math.abs(a1 - a0) * 2));
+  for (let i = 0; i <= n; i++) { const a = ((a0 + ((a1 - a0) * i) / n) * Math.PI) / 180; pts.push([x + ro * Math.cos(a), y + ro * Math.sin(a)]); }
+  for (let i = n; i >= 0; i--) { const a = ((a0 + ((a1 - a0) * i) / n) * Math.PI) / 180; pts.push([x + ri * Math.cos(a), y + ri * Math.sin(a)]); }
+  pts.push(pts[0]);
+  return [[pts]];
+}
+const rect = (x0, y0, x1, y1) => [[[[x0, y0], [x1, y0], [x1, y1], [x0, y1], [x0, y0]]]];
+const sub = (a, ...b) => pc.difference(a, ...b);
+const add = (...a) => pc.union(...a);
 
-export function disc(x, r) {
-  const s = new THREE.Shape();
-  s.absarc(x, CY, r, 0, Math.PI * 2, false);
+// MultiPolygon → THREE.Shape[]（每一片单独一块）
+function toShapes(mp) {
+  return mp.map((poly) => {
+  const toPath = (P, ring) => { ring.slice(0, -1).forEach(([x, y], i) => (i ? P.lineTo(x, y) : P.moveTo(x, y))); P.closePath(); return P; };
+  const s = toPath(new THREE.Shape(), poly[0]);
+  for (const h of poly.slice(1)) s.holes.push(toPath(new THREE.Path(), h));
+  s.userData = { pieces: mp.length };
   return s;
+  });
 }
 
-export function ring(x, ro, ri) {
-  const s = disc(x, ro);
-  const h = new THREE.Path();
-  h.absarc(x, CY, ri, 0, Math.PI * 2, true);
-  s.holes.push(h);
-  return s;
-}
+const D = DISC, M = MOON;
+const dc = (r, dy = 0) => circ(D.x, D.y + dy, r);
 
-// 月牙 = 圆 (x1, r1) 减去 圆 (x2, r2)，x2 > x1，开口朝右
-export function crescent(x1, r1, x2, r2) {
-  const d = x2 - x1;
-  const px = (r1 * r1 - r2 * r2 + d * d) / (2 * d);
-  const py = Math.sqrt(r1 * r1 - px * px);
-  const a1 = Math.atan2(py, px);
-  const a2 = Math.atan2(py, px - d);
-  const s = new THREE.Shape();
-  s.absarc(x1, CY, r1, a1, Math.PI * 2 - a1, false);
-  s.absarc(x2, CY, r2, Math.PI * 2 - a2, a2, true);
-  s.closePath();
-  s.userData = { tipX: x1 + px, tipY: py };
-  return s;
-}
+// 原来已粘好的小月牙（开口朝上）+ 连接条（照片估的位置）
+const smallMoon = sub(circ(CX, 179.9, 25.9), circ(CX, 195.2, 35.2));
+const strip = rect(CX - 5, 113, CX + 5, 157);
+const keepOut = add(sub(circ(CX, 179.9, 27.4), circ(CX, 195.2, 33.7)), rect(CX - 6.5, 100, CX + 6.5, 158));
 
-// 弧带：圆心 (x, CY)，角度 a0→a1（度，0° 朝右）
-export function band(x, ri, ro, a0, a1) {
-  const s = new THREE.Shape();
-  s.absarc(x, CY, ro, rad(a0), rad(a1), false);
-  s.absarc(x, CY, ri, rad(a1), rad(a0), true);
-  s.closePath();
-  return s;
-}
+// 大月牙一层 = 外圆 (cy, r) 减 与圆同心的内圆 (D, ri)
+const moonLayer = (cy, r, ri, avoid) => (avoid ? sub(circ(CX, cy, r), dc(ri), keepOut) : sub(circ(CX, cy, r), dc(ri)));
 
-const D = DISC, M = MOON, E = EDGE;
-const moon = (gap) => crescent(M.x, M.r, D.x, D.r + gap); // 内弧与主圆同心，空隙处处相等
-// 外圈：一整圈连续的平面环（不断开），图案 = 环上开 n 个圆孔
-function plate(ri, ro, n = 0, holeR = 0, holeRm = 0, a0 = 0) {
-  const s = ring(C0, ro, ri);
-  for (let i = 0; i < n; i++) {
-    const a = rad(a0 + (i * 360) / n);
-    const h = new THREE.Path();
-    h.absarc(C0 + holeRm * Math.cos(a), CY + holeRm * Math.sin(a), holeR, 0, Math.PI * 2, true);
-    s.holes.push(h);
-  }
-  return s;
-}
+// 外圈平面：底板中心 R100，挖掉大月牙外圆 + 缝，挖掉圆和弧带内沿 → 一整片连续的环
+export const plane = sub(circ(C0.x, C0.y, C0.r), circ(M.x, M.y, M.r + CUT), dc(BAND.ri));
+const band = (a0, a1, ri = BAND.ri) => sector(D.x, D.y, ri, BAND.ro, -90 + a0, -90 + a1);
 
-// 每一格 = 若干块 { shape, z0 起始高度, h 厚度, fixed 已做好 }
+const P = (mp, z0, h, fixed = false) => toShapes(mp).map((shape) => ({ shape, z0, h, fixed }));
+
 export const CELLS = [
   {
-    n: 1, title: '平台', sub: '最简单 · 空隙 20 · 最高 10',
-    gap: 20, edge: '平面环 +5，开 4 个圆孔 Ø8',
-    note: '月牙 1 片 +5 · 外圈：一整圈平面环 +5，斜角开 4 个圆孔',
+    n: 1, title: '平台', sub: '最简单 · 最高 10', gap: 20,
+    note: '大月牙 1 片 +5（让开原小月牙和连接条）· 外圈平面 +5 · 弧带压在平面上 +10',
     parts: [
-      { shape: disc(D.x, 45), z0: 0, h: 5, fixed: true },
-      { shape: disc(D.x, 30), z0: 5, h: 5, fixed: true },
-      { shape: moon(20), z0: 0, h: 5 },
-      { shape: plate(E.ri, E.ro, 4, 4, E.rm, 45), z0: 0, h: 5 },
-    ],
+      P(dc(45), 0, 5, true), P(dc(30), 5, 5, true),
+      P(smallMoon, 0, 5, true), P(strip, 0, 3, true),
+      P(moonLayer(M.y, M.r, 65, true), 0, 5),
+      P(plane, 0, 5),
+      P(band(-60, 60), 5, 5),
+    ].flat(),
   },
   {
-    n: 2, title: '下沉广场', sub: '空隙 10 · 最高 15',
-    gap: 10, edge: '平面环 +5，开 8 个圆孔 Ø8',
-    note: '月牙 2 层 +5 / +10 · 外圈：平面环 +5，圆孔加到 8 个',
+    n: 2, title: '下沉广场', sub: '最高 15', gap: 10,
+    note: '大月牙 2 层 +5 / +10 · 外圈平面 +5 · 弧带断成 3 段压在平面上 +10',
     parts: [
-      { shape: disc(D.x, 45), z0: 0, h: 5, fixed: true },
-      { shape: ring(D.x, 45, 28), z0: 5, h: 5, fixed: true },
-      { shape: ring(D.x, 45, 37), z0: 10, h: 5, fixed: true },
-      { shape: moon(10), z0: 0, h: 5 },
-      { shape: crescent(112, 62, D.x, 55), z0: 5, h: 5 },
-      { shape: plate(E.ri, E.ro, 8, 4, E.rm, 22.5), z0: 0, h: 5 },
-    ],
+      P(dc(45), 0, 5, true),
+      P(sub(dc(45), dc(28)), 5, 5, true), P(sub(dc(45), dc(37)), 10, 5, true),
+      P(smallMoon, 0, 5, true), P(strip, 0, 3, true),
+      P(moonLayer(M.y, M.r, 55, true), 0, 5),
+      P(moonLayer(98, 62, 55, true), 5, 5),
+      P(plane, 0, 5),
+      P(band(-58, -22), 5, 5), P(band(-17, 17), 5, 5), P(band(22, 58), 5, 5),
+    ].flat(),
   },
   {
-    n: 3, title: '台阶', sub: '最复杂 · 空隙 0 · 最高 25',
-    gap: 0, edge: '平面环 2 级：R84–R102 +5，外沿 R94–R102 +10；内圈开 8 个圆孔 Ø5',
-    note: '月牙 3 级 +5 / +10 / +15 · 外圈：平面环 2 级（外沿抬高 +10），开 8 个小圆孔',
+    n: 3, title: '台阶', sub: '最复杂 · 最高 25', gap: 0,
+    note: '大月牙 3 级 +5 / +10 / +15 贴住圆 · 外圈平面 +5 · 弧带 3 级 +10 / +15 / +20',
     parts: [
-      { shape: disc(D.x, 45), z0: 0, h: 5, fixed: true },
-      { shape: disc(D.x, 45), z0: 5, h: 5, fixed: true },
-      { shape: disc(D.x, 45), z0: 10, h: 5, fixed: true },
-      { shape: disc(148, 35), z0: 15, h: 5, fixed: true },
-      { shape: disc(156, 25), z0: 20, h: 5, fixed: true },
-      { shape: moon(0), z0: 0, h: 5 },
-      { shape: crescent(108, 65, D.x, 45), z0: 5, h: 5 },
-      { shape: crescent(116, 55, D.x, 45), z0: 10, h: 5 },
-      { shape: plate(E.ri, E.ro, 8, 2.5, 89, 22.5), z0: 0, h: 5 },
-      { shape: plate(94, E.ro), z0: 5, h: 5 },
-    ],
+      P(dc(45), 0, 5, true), P(dc(45), 5, 5, true), P(dc(45), 10, 5, true),
+      P(dc(35, -8), 15, 5, true), P(dc(25, -16), 20, 5, true),
+      P(moonLayer(M.y, M.r, 45), 0, 5),
+      P(moonLayer(102, 65, 45), 5, 5),
+      P(moonLayer(94, 55, 45), 10, 5),
+      P(plane, 0, 5),
+      P(band(-60, 60), 5, 5), P(band(-40, 40), 10, 5), P(band(-18, 18), 15, 5),
+    ].flat(),
   },
 ];
