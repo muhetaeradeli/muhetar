@@ -1,7 +1,10 @@
 import * as THREE from 'three';
-import { BASE, CY, CIRCLE, MOON, BAND, CELLS } from './shapes.js';
+import { BASE, CY, DISC, MOON, BAND, CELLS } from './shapes.js';
 
 const SEG = 96;
+const RED = '#c0392b';
+const NEW_FILL = [205, 222, 240];   // 新做的（月牙、弧带）偏蓝
+const OLD_FILL = [252, 251, 248];   // 已做好的圆底座：白
 
 function head(cell, tag) {
   const d = document.createElement('div');
@@ -45,26 +48,26 @@ function axon(cell) {
     scene.add(lines);
   };
 
-  // 底板（厚 3）
   const board = new THREE.Shape();
   board.moveTo(0, 0); board.lineTo(BASE, 0); board.lineTo(BASE, BASE); board.lineTo(0, BASE); board.closePath();
   add(new THREE.ExtrudeGeometry(board, { depth: 3, bevelEnabled: false }), 0xd9d5c8, -3);
 
   for (const p of cell.parts) {
-    add(new THREE.ExtrudeGeometry(p.shape, { depth: p.h, bevelEnabled: false, curveSegments: SEG }), 0xffffff, p.z0);
+    add(new THREE.ExtrudeGeometry(p.shape, { depth: p.h, bevelEnabled: false, curveSegments: SEG }),
+      p.fixed ? 0xffffff : 0xc9dcf2, p.z0);
   }
 
-  const view = 150;
+  const view = 138;
   const asp = w / h;
   const cam = new THREE.OrthographicCamera(-view * asp, view * asp, view, -view, 1, 2000);
   cam.up.set(0, 0, 1);
-  const target = new THREE.Vector3(BASE / 2, BASE / 2 + 8, 0);
-  cam.position.copy(target).add(new THREE.Vector3(-260, -520, 430));
+  const target = new THREE.Vector3(BASE / 2, BASE / 2 + 4, 0);
+  cam.position.copy(target).add(new THREE.Vector3(-230, -520, 470));
   cam.lookAt(target);
   renderer.render(scene, cam);
 }
 
-// ---------- 平面图 ----------
+// ---------- SVG 小工具 ----------
 const NS = 'http://www.w3.org/2000/svg';
 function el(parent, name, attrs, text) {
   const e = document.createElementNS(NS, name);
@@ -81,106 +84,148 @@ function shapePath(shape) {
   return loop(outer) + holes.map(loop).join('');
 }
 
-function dim(g, x0, y0, x1, y1, label, opt = {}) {
-  const c = '#c0392b';
-  el(g, 'line', { x1: x0, y1: Y(y0), x2: x1, y2: Y(y1), stroke: c, 'stroke-width': 0.35 });
-  const ang = Math.atan2(-(y1 - y0), x1 - x0);
+function label(g, x, y, s, opt = {}) {
+  const t = el(g, 'text', {
+    x, y, 'font-size': opt.size || 4.8, fill: opt.fill || RED, 'text-anchor': opt.anchor || 'middle',
+    'font-weight': opt.bold ? 700 : 400,
+    stroke: opt.halo || '#f7f5f1', 'stroke-width': 1.4, 'paint-order': 'stroke',
+  }, s);
+  if (opt.rot) t.setAttribute('transform', `rotate(${opt.rot} ${x} ${y})`);
+  return t;
+}
+
+function dim(g, x0, y0, x1, y1, text, opt = {}) {
+  el(g, 'line', { x1: x0, y1: Y(y0), x2: x1, y2: Y(y1), stroke: RED, 'stroke-width': 0.35 });
+  const ang = Math.atan2(-(y1 - y0), x1 - x0) + Math.PI / 4;
   for (const [x, y] of [[x0, y0], [x1, y1]]) {
     const t = 1.6;
     el(g, 'line', {
-      x1: x - t * Math.cos(ang + Math.PI / 4), y1: Y(y) - t * Math.sin(ang + Math.PI / 4),
-      x2: x + t * Math.cos(ang + Math.PI / 4), y2: Y(y) + t * Math.sin(ang + Math.PI / 4),
-      stroke: c, 'stroke-width': 0.5,
+      x1: x - t * Math.cos(ang), y1: Y(y) - t * Math.sin(ang),
+      x2: x + t * Math.cos(ang), y2: Y(y) + t * Math.sin(ang), stroke: RED, 'stroke-width': 0.5,
     });
   }
-  const mx = (x0 + x1) / 2 + (opt.dx || 0), my = Y((y0 + y1) / 2) + (opt.dy || 0);
-  const t = el(g, 'text', {
-    x: mx, y: my, 'font-size': 5, fill: c, 'text-anchor': 'middle',
-    stroke: '#f7f5f1', 'stroke-width': 1.6, 'paint-order': 'stroke',
-  }, label);
-  if (opt.rot) t.setAttribute('transform', `rotate(${opt.rot} ${mx} ${my})`);
+  label(g, (x0 + x1) / 2 + (opt.dx || 0), Y((y0 + y1) / 2) + (opt.dy || 0), text, opt);
 }
 
+// ---------- 平面图 ----------
 function plan(cell) {
   const box = document.createElement('div');
   box.className = 'cell plan';
-  box.appendChild(head(cell, '平面图'));
+  box.appendChild(head(cell, '平面图 · 图上数字 = 顶面高度'));
   document.getElementById('plan').appendChild(box);
 
-  const svg = el(box, 'svg', { viewBox: '-40 -38 290 284', preserveAspectRatio: 'xMidYMid meet' });
+  const svg = el(box, 'svg', { viewBox: '-40 -36 290 280', preserveAspectRatio: 'xMidYMid meet' });
   el(svg, 'rect', { x: 0, y: 0, width: BASE, height: BASE, fill: '#e3dfd3', stroke: '#555', 'stroke-width': 0.5 });
-
-  // 中轴线
   el(svg, 'line', { x1: -6, y1: Y(CY), x2: BASE + 6, y2: Y(CY), stroke: '#999', 'stroke-width': 0.25, 'stroke-dasharray': '4 1.5 0.8 1.5' });
 
-  // 高的画在上面、颜色更白
-  const top = Math.max(...cell.parts.map((p) => p.z0 + p.h));
+  const top = 25;
   [...cell.parts].sort((a, b) => a.z0 - b.z0).forEach((p) => {
-    const k = (p.z0 + p.h) / top;
-    const v = Math.round(236 + 19 * k);
+    const k = 1 - 0.55 * ((p.z0 + p.h) / top);          // 越高越深
+    const c = p.fixed ? OLD_FILL.map((v) => Math.round(v - 30 * (1 - k)))
+                      : NEW_FILL.map((v, i) => Math.round(v - [70, 55, 35][i] * (1 - k)));
     el(svg, 'path', {
-      d: shapePath(p.shape), fill: `rgb(${v},${v},${v - 2})`, 'fill-rule': 'evenodd',
+      d: shapePath(p.shape), fill: `rgb(${c})`, 'fill-rule': 'evenodd',
       stroke: '#333', 'stroke-width': 0.45, 'stroke-linejoin': 'round',
     });
   });
 
   const g = el(svg, 'g', {});
-  const M = MOON, C = CIRCLE, B = BAND;
-  // 底板
+  const D = DISC, M = MOON, B = BAND;
+  const xl = M.x - M.r, xr = D.x + B.ro;
+
   dim(g, 0, -12, BASE, -12, '底板 210', { dy: -2 });
-  dim(g, BASE + 14, 0, BASE + 14, BASE, '210', { dx: 5, rot: 90 });
-  // 月牙高度
-  dim(g, -14, CY - M.r1, -14, CY + M.r1, '月牙 高 150', { dx: -4, rot: -90 });
-  el(g, 'line', { x1: -17, y1: Y(CY + M.r1), x2: M.x1, y2: Y(CY + M.r1), stroke: '#c0392b', 'stroke-width': 0.2, 'stroke-dasharray': '1.5 1.5' });
-  el(g, 'line', { x1: -17, y1: Y(CY - M.r1), x2: M.x1, y2: Y(CY - M.r1), stroke: '#c0392b', 'stroke-width': 0.2, 'stroke-dasharray': '1.5 1.5' });
-  // 总宽
-  const xl = M.x1 - M.r1, xr = C.x + B.ro;
-  dim(g, xl, BASE + 12, xr, BASE + 12, `总宽 ${xr - xl}`, { dy: -2 });
+  dim(g, -14, CY - M.r, -14, CY + M.r, '月牙 高 150', { dx: -4, rot: -90 });
+  for (const s of [1, -1]) {
+    el(g, 'line', { x1: -17, y1: Y(CY + s * M.r), x2: M.x, y2: Y(CY + s * M.r), stroke: RED, 'stroke-width': 0.2, 'stroke-dasharray': '1.5 1.5' });
+  }
   dim(g, 0, BASE + 12, xl, BASE + 12, `${xl}`, { dy: -2 });
+  dim(g, xl, BASE + 12, xr, BASE + 12, `总宽 ${xr - xl}`, { dy: -2 });
   dim(g, xr, BASE + 12, BASE, BASE + 12, `${BASE - xr}`, { dy: -2 });
 
+  // 月牙最宽处、空隙
+  const inner = D.x - D.r - cell.gap;
+  dim(g, xl, CY + 62, inner, CY + 62, `月牙最宽 ${inner - xl}`, { dy: -2 });
+  for (const x of [xl, inner]) {
+    el(g, 'line', { x1: x, y1: Y(CY), x2: x, y2: Y(CY + 64), stroke: RED, 'stroke-width': 0.2, 'stroke-dasharray': '1.5 1.5' });
+  }
+  if (cell.gap) dim(g, inner, CY - 52, D.x - D.r, CY - 52, `空隙 ${cell.gap}`, { dy: 6 });
+  if (cell.gap) for (const x of [inner, D.x - D.r]) {
+    el(g, 'line', { x1: x, y1: Y(CY), x2: x, y2: Y(CY - 54), stroke: RED, 'stroke-width': 0.2, 'stroke-dasharray': '1.5 1.5' });
+  }
+
+  // 入口：月牙尖 ↔ 弧带端头
+  const moonShape = cell.parts.find((p) => !p.fixed).shape;
+  const tip = moonShape.userData;
+  const a = (cell.bandA * Math.PI) / 180;
+  const ex = D.x + B.ri * Math.cos(a), ey = B.ri * Math.sin(a);
+  const gate = Math.hypot(ex - tip.tipX, ey - tip.tipY);
+  label(g, D.x + 40, Y(CY + 76), `入口 ≈ ${gate.toFixed(0)}`);
+  label(g, D.x + 40, Y(CY - 80), `入口 ≈ ${gate.toFixed(0)}`);
+  label(g, D.x + 52, Y(CY - 66), `弧带 R${B.ri}–R${B.ro} · ±${cell.bandA}°`, { size: 4.2 });
+
+  // 顶面高度
+  const hgt = (x, y, s, o = {}) => label(g, x, Y(y) + 1.7, s, { fill: '#1d3f66', halo: 'none', bold: true, size: 5, ...o });
   if (cell.n === 1) {
-    dim(g, C.x - C.r, CY - 22, C.x + C.r, CY - 22, '主圆 Ø80', { dy: -2 });
-    dim(g, xl, CY + 16, M.x2 - M.r2, CY + 16, '43', { dy: -2 });
-    dim(g, C.x + B.ri, CY + 10, C.x + B.ro, CY + 10, '12', { dy: -2 });
-    dim(g, M.x2 - M.r2, CY - 9, C.x - C.r, CY - 9, '32', { dy: 6 });
-    // 入口缺口
-    const tip = cell.parts[0].shape.userData;
-    const a = (B.a * Math.PI) / 180, rm = (B.ri + B.ro) / 2;
-    const bx = C.x + rm * Math.cos(a), by = rm * Math.sin(a);
-    const gap = Math.hypot(bx - tip.tipX, by - tip.tipY).toFixed(0);
-    dim(g, tip.tipX, CY + tip.tipY, bx, CY + by, `入口 ${gap}`, { dy: -5, dx: 6 });
-    dim(g, tip.tipX, CY - tip.tipY, bx, CY - by, `入口 ${gap}`, { dy: 9, dx: 6 });
-    el(g, 'text', { x: 36, y: Y(CY - 36), 'font-size': 4.6, fill: '#c0392b', 'text-anchor': 'middle' }, '外 R75');
-    el(g, 'text', { x: 80, y: Y(CY + 44), 'font-size': 4.6, fill: '#c0392b', 'text-anchor': 'middle' }, '内 R62');
-    el(g, 'text', { x: 187, y: Y(CY - 50), 'font-size': 4.6, fill: '#c0392b', 'text-anchor': 'middle' }, 'R56–R68');
+    hgt(50, CY, '+5'); hgt(D.x + 58, CY, '+5');
+    hgt(D.x, CY + 8, '+10', { fill: '#555' }); hgt(D.x, CY - 38, '+5', { fill: '#555' });
   }
   if (cell.n === 2) {
-    dim(g, 13, CY + 16, 30, CY + 16, '17', { dy: -2 });
-    dim(g, 30, CY + 16, 40, CY + 16, '10', { dy: -2 });
-    dim(g, 40, CY + 16, 56, CY + 16, '16', { dy: -2 });
-    dim(g, C.x, CY - 14, C.x + 22, CY - 14, 'R22', { dy: 6 });
-    dim(g, C.x + 31, CY - 14, C.x + 40, CY - 14, '9', { dy: 6 });
-    el(g, 'text', { x: 190, y: Y(CY - 58), 'font-size': 4.6, fill: '#c0392b', 'text-anchor': 'middle' }, '3 段 各 38°');
-    el(g, 'text', { x: 190, y: Y(CY - 65), 'font-size': 4.6, fill: '#c0392b', 'text-anchor': 'middle' }, '间隔 5°');
+    hgt(37.5, CY, '+5'); hgt(67.5, CY, '+10'); hgt(D.x + 58, CY, '+5');
+    hgt(D.x, CY + 8, '+5', { fill: '#555' }); hgt(D.x, CY - 32.5, '+10', { fill: '#555' }); hgt(D.x, CY - 41, '+15', { fill: '#555' });
   }
   if (cell.n === 3) {
-    const lab = (x, y, s) => el(g, 'text', {
-      x, y: Y(y), 'font-size': 4.6, fill: '#c0392b', 'text-anchor': 'middle',
-      stroke: '#f7f5f1', 'stroke-width': 1.2, 'paint-order': 'stroke',
-    }, s);
-    lab(20.5, CY - 2, '12'); lab(36, CY - 2, '8'); lab(50, CY - 2, '4');
-    lab(C.x, CY - 2, '高12'); lab(C.x + 26.5, CY - 2, '8'); lab(C.x + 35.5, CY - 2, '4');
-    lab(C.x + 59, CY + 12, '4'); lab(C.x + 65, CY - 12, '8');
-    dim(g, 13, CY + 18, 28, CY + 18, '15', { dy: -2 });
-    dim(g, 28, CY + 18, 44, CY + 18, '16', { dy: -2 });
-    dim(g, 44, CY + 18, 56, CY + 18, '12', { dy: -2 });
-    dim(g, C.x, CY + 14, C.x + 22, CY + 14, 'R22', { dy: -2 });
-    dim(g, C.x, CY + 24, C.x + 31, CY + 24, 'R31', { dy: -2 });
-    el(g, 'text', { x: 150, y: Y(22), 'font-size': 4.6, fill: '#c0392b', 'text-anchor': 'middle' }, '图形上的数字 = 该级顶面高度');
+    hgt(34, CY, '+5'); hgt(52, CY, '+10'); hgt(78, CY, '+15');
+    hgt(D.x + 58, CY, '+15'); hgt(D.x + 39, CY + 39, '+10'); hgt(D.x + 21, CY + 54, '+5');
+    hgt(D.x - 34, CY - 18, '+15', { fill: '#555' }); hgt(D.x - 12, CY - 20, '+20', { fill: '#555' }); hgt(156, CY + 8, '+25', { fill: '#555' });
+  }
+  label(g, D.x, Y(CY - 14), cell.n === 3 ? '' : '已做好 R45', { fill: '#555', size: 4.4, halo: 'none' });
+}
+
+// ---------- 剖面（沿中轴线切开） ----------
+function inside(shape, x) {
+  const hit = (pts) => {
+    let c = false;
+    for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
+      const a = pts[i], b = pts[j];
+      if ((a.y > CY) !== (b.y > CY) && x < ((b.x - a.x) * (CY - a.y)) / (b.y - a.y) + a.x) c = !c;
+    }
+    return c;
+  };
+  const { shape: outer, holes } = shape.extractPoints(SEG);
+  return hit(outer) && !holes.some(hit);
+}
+
+function section(cell) {
+  const box = document.createElement('div');
+  box.className = 'cell sec';
+  document.getElementById('sec').appendChild(box);
+  const K = 2;                                     // 高度放大 2 倍，看得清
+  const svg = el(box, 'svg', { viewBox: '-40 -72 290 92', preserveAspectRatio: 'xMidYMid meet' });
+  label(svg, 0, -62, `沿中轴线切开（剖面，高度放大 ${K} 倍）`, { anchor: 'start', fill: '#444', size: 5 });
+  el(svg, 'rect', { x: 0, y: 0, width: BASE, height: 3 * K, fill: '#d9d5c8', stroke: '#333', 'stroke-width': 0.4 });
+  let top = 0;
+  for (const p of cell.parts) {
+    let start = null;
+    for (let x = 0; x <= BASE + 0.25; x += 0.25) {
+      const on = x <= BASE && inside(p.shape, x + 0.01);
+      if (on && start === null) start = x;
+      if (!on && start !== null) {
+        el(svg, 'rect', {
+          x: start, y: -(p.z0 + p.h) * K, width: x - start, height: p.h * K,
+          fill: p.fixed ? '#fcfbf8' : '#c9dcf2', stroke: '#333', 'stroke-width': 0.4,
+        });
+        start = null;
+        top = Math.max(top, p.z0 + p.h);
+      }
+    }
+  }
+  for (let z = 5; z <= top; z += 5) {
+    el(svg, 'line', { x1: BASE + 4, y1: -z * K, x2: BASE + 12, y2: -z * K, stroke: RED, 'stroke-width': 0.3 });
+    label(svg, BASE + 14, -z * K + 1.6, `${z}`, { anchor: 'start', size: 4.4 });
   }
 }
 
 for (const c of CELLS) axon(c);
 for (const c of CELLS) plan(c);
+for (const c of CELLS) section(c);
 window.__done = true;

@@ -14,6 +14,8 @@
   .row { display:grid; grid-template-columns:repeat(3,1fr); gap:26px; margin-bottom:26px; }
   .cell { position:relative; border:2px solid var(--line); background:#f7f5f1; height:560px; overflow:hidden; }
   .cell.plan { height:640px; }
+  .cell.sec { height:200px; border:none; background:none; }
+  .legend i { display:inline-block; width:22px; height:14px; border:1.5px solid #333; vertical-align:-2px; margin:0 6px 0 18px; }
   .head { position:absolute; left:12px; top:10px; display:flex; align-items:center; gap:10px; z-index:2; }
   .num { width:40px; height:40px; border-radius:50%; background:var(--ink); color:#fff;
          font-size:23px; font-weight:700; display:flex; align-items:center; justify-content:center; }
@@ -27,13 +29,15 @@
 </head>
 <body>
 <div id="sheet">
-  <h1>第 1–3 格 · 基础图形（放大版）</h1>
-  <p class="lead">底板 210 × 210 mm　图形放大到 183 × 150，占满底板　月牙高 150 mm　右侧加弧带把月牙和圆围起来　单位 mm</p>
+  <h1>第一阶段 · 地形（第 1–3 格）— 月牙放大 + 围合</h1>
+  <p class="lead legend">底板 210 × 210 mm　单位 mm　每级 5 mm<i style="background:#fcfbf8"></i>圆的底座：已做好，不动<i style="background:#c9dcf2"></i>月牙 + 围合弧带：新做（实际模型全部用白色）</p>
   <div class="row" id="axon"></div>
   <div class="row" id="plan"></div>
+  <div class="row" id="sec"></div>
   <div class="foot">
-    围合方式：左边是月牙，右边加一条与主圆同心的弧带（R56–R68），两者之间上下各留一个约 25 mm 的缺口当入口。<br>
-    三格的外轮廓完全一样（都压在 R75 月牙外圆、R40 主圆、R68 弧带这三条线上），方便后面第 4–9 格在同一位置立墙、加屋顶。
+    月牙：外圆 R75（圆心离底板左边 100，在中轴线上）→ 高 150；内弧和已做好的圆同心，所以空隙处处一样宽：20 → 10 → 0，三格越靠越近，到第 3 格贴上去变成台阶。<br>
+    围合：右边加一条与圆同心的弧带（R54–R62，宽 8），和月牙的两个尖之间上下各留一个入口；三格依次是 整片 → 断成 3 段 → 沿弧线升 3 级。<br>
+    圆底座的尺寸是我从你的图上量出来的（R45，圆心离左边 140；第 3 格上面两层 R35、R25，各向右偏 8）。动手前请拿实物核对一下，有出入告诉我。
   </div>
 </div>
 <script type="importmap">{ "imports": { "three": "./node_modules/three/build/three.module.js" } }</script>

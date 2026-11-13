@@ -14,7 +14,7 @@ const server = http.createServer((req, res) => {
 
 server.listen(0, async () => {
   const browser = await chromium.launch({ args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
-  const page = await browser.newPage({ viewport: { width: 2000, height: 1200 }, deviceScaleFactor: 1 });
+  const page = await browser.newPage({ viewport: { width: 2000, height: 1400 }, deviceScaleFactor: 1 });
   page.on('pageerror', (e) => console.error('page error:', e.message));
   await page.goto(`http://localhost:${server.address().port}/index.html`);
   await page.waitForFunction('window.__done === true', null, { timeout: 60000 });
