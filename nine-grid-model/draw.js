@@ -153,7 +153,7 @@ function plan(cell) {
     el(g, 'line', { x1: x, y1: Y(CY), x2: x, y2: Y(CY - 54), stroke: RED, 'stroke-width': 0.2, 'stroke-dasharray': '1.5 1.5' });
   }
 
-  // 外圈花边
+  // 外圈平面环
   for (const r of [E.ri, E.ro]) {
     el(g, 'circle', { cx: C0, cy: Y(CY), r, fill: 'none', stroke: RED, 'stroke-width': 0.2, 'stroke-dasharray': '1.5 1.5' });
   }
@@ -161,8 +161,8 @@ function plan(cell) {
   label(g, C0, Y(CY) + 7, '底板中心', { size: 3.8 });
   const q = Math.SQRT1_2;
   dim(g, C0 + E.ri * q, CY - E.ri * q, C0 + E.ro * q, CY - E.ro * q, '', {});
-  label(g, BASE + 4, BASE + 1, `花边 R${E.ri}–R${E.ro}`, { size: 4.2 });
-  label(g, BASE + 4, BASE + 7, '宽 10', { size: 4.2 });
+  label(g, BASE + 4, BASE + 1, `平面环 R${E.ri}–R${E.ro}`, { size: 4.2 });
+  label(g, BASE + 4, BASE + 7, `宽 ${E.ro - E.ri}`, { size: 4.2 });
 
   // 顶面高度
   const hgt = (x, y, s, o = {}) => label(g, x, Y(y) + 1.7, s, { fill: '#1d3f66', halo: 'none', bold: true, size: 5, ...o });
