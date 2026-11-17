@@ -115,7 +115,7 @@
     kui: line.kz4.end + 0.2,                   // the kui speaks
     thanks: line.end2.t,
     shapes: [0, 1, 2].map((i) => line.mal2.t + 0.5 + i * 1.3), // square, circle, cross
-    mondrianLines: [0, 1, 2, 3, 4, 5].map((i) => S.mondrian[0] + 0.4 + i * 0.45),
+    mondrianLines: [0, 1, 2, 3, 4, 5].map((i) => line.mon2.t - 0.6 + i * 0.45),
   };
   const markers = {
     title: { t: ev.title, sync: 'av' },

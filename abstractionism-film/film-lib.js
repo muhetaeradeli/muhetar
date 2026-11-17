@@ -11,8 +11,12 @@
   const SANS = 'Inter, "DejaVu Sans", sans-serif', SERIF = '"DejaVu Serif", Georgia, serif';
   K.SANS = SANS; K.SERIF = SERIF;
 
-  const IMAGES = ['kandinsky7', 'kandinsky8', 'circles', 'firstabs', 'blacksquare', 'suprem', 'mondrian', 'klint7', 'altar', 'monet', 'cezanne', 'klee', 'senecio', 'doesburg', 'expo010'];
-  K.load = async () => { await Promise.all(IMAGES.map(async (n) => { K.IMG[n] = await Studio.loadImage(`assets/${n}.jpg`); })); };
+  const IMAGES = ['kandinsky7', 'kandinsky8', 'circles', 'firstabs', 'blacksquare', 'suprem', 'mondrian', 'klint7', 'altar', 'monet', 'cezanne', 'klee', 'senecio', 'doesburg', 'expo010',
+    'impression3', 'yrb', 'onwhite', 'comp6', 'comp4', 'blackrider', 'murnau', 'blacklines', 'blackcircle', 'blackcross', 'whiteonwhite', 'supremus58', 'redsquare', 'redtree', 'graytree', 'broadway',
+    'redplane', 'matisse', 'derain', 'gris', 'delaunay', 'windows', 'marc', 'proun', 'popova', 'parnassum', 'picabia', 'swan', 'bluehorses'];
+  // a missing picture is skipped (drawn as nothing), never an error
+  K.load = async () => { await Promise.all(IMAGES.map(async (n) => { try { K.IMG[n] = await Studio.loadImage(`assets/${n}.jpg`); } catch (e) { K.IMG[n] = null; } })); };
+  K.has = (n) => !!(K.IMG[n] && K.IMG[n].width);
 
   // ---------- time ----------
   K.u = (t, a, b) => clamp((t - a) / Math.max(1e-6, b - a));
@@ -176,14 +180,35 @@
     const s = shots[i], f = s.fade ?? 0.8, a = i > 0 && f > 0 ? K.u(t, s.at, s.at + f) : 1;
     if (a < 1) { ctx.save(); shots[i - 1].draw(ctx, t); ctx.restore(); }
     if (a >= 1) { ctx.save(); s.draw(ctx, t); ctx.restore(); }
-    else { const c = G.scratch ? null : null; const b = K.buf(); const x = b.getContext('2d'); s.draw(x, t); ctx.save(); ctx.globalAlpha = ease.inOutQuad(a); ctx.drawImage(b, 0, 0, W, H); ctx.restore(); }
+    else { const b = K.offscreen((x) => s.draw(x, t)); ctx.save(); ctx.globalAlpha = ease.inOutQuad(a); ctx.drawImage(b, 0, 0, W, H); ctx.restore(); }
   };
-  let _buf = null;
-  K.buf = () => {
+  // draw into an offscreen frame; nested calls (a dissolve inside a dissolve) each get their own buffer
+  const _bufs = []; let _depth = 0;
+  K.offscreen = (fn) => {
     const k = G.scale || 1, w = Math.round(W * k), h = Math.round(H * k);
-    if (!_buf || _buf.width !== w || _buf.height !== h) _buf = G.makeCanvas(w, h);
-    const x = _buf.getContext('2d'); x.setTransform(1, 0, 0, 1, 0, 0); x.globalAlpha = 1; x.filter = 'none'; x.globalCompositeOperation = 'source-over'; x.clearRect(0, 0, w, h); x.setTransform(k, 0, 0, k, 0, 0);
-    return _buf;
+    let c = _bufs[_depth];
+    if (!c || c.width !== w || c.height !== h) c = _bufs[_depth] = G.makeCanvas(w, h);
+    const x = c.getContext('2d'); x.setTransform(1, 0, 0, 1, 0, 0); x.globalAlpha = 1; x.filter = 'none'; x.globalCompositeOperation = 'source-over'; x.clearRect(0, 0, w, h); x.setTransform(k, 0, 0, k, 0, 0);
+    _depth++; try { fn(x); } finally { _depth--; }
+    return c;
+  };
+
+  // ---------- a gallery: several paintings in a row, each its own shot with a dissolve and a museum label ----------
+  //   items: [{ img, title, sub, mode: 'pan' | 'wall', from, to, tone, right }] spread evenly over [a, b]
+  K.gallery = (ctx, t, a, b, items) => {
+    items = items.filter((it) => K.has(it.img));
+    if (!items.length) return;
+    const d = (b - a) / items.length;
+    K.seq(ctx, t, items.map((it, i) => ({ at: a + i * d, fade: i ? 0.8 : 0, draw: (c, t) => {
+      const s0 = a + i * d - 0.8, s1 = a + (i + 1) * d + 0.8, img = K.IMG[it.img];
+      if ((it.mode || (img.width / img.height > 1.25 ? 'pan' : 'wall')) === 'pan') {
+        K.pan(c, img, VIEW, t, s0, s1, it.from || { zoom: 1.0, x: 0.5, y: 0.5 }, it.to || { zoom: 1.16, x: 0.5 + (i % 2 ? 0.04 : -0.04), y: 0.46 });
+      } else {
+        K.wall(c, t, it.tone || '#1A1512');
+        K.cam(c, { zoom: 1 + 0.1 * K.io(t, s0, s1), x: (i % 2 ? 1 : -1) * 30 * K.u(t, s0, s1), ...K.drift(t, 3, 7 + i) }, () => K.framed(c, img, VIEW.cx, VIEW.cy, VIEW.h * 0.74, { frame: 14 }));
+      }
+      if (it.title) K.label(c, t, a + i * d + 0.4, a + (i + 1) * d - 0.1, it.title, it.sub || '', { right: !!it.right });
+    } })));
   };
 
   // ---------- finishing: letterbox, subtitles, vignette, grain, flare ----------

@@ -32,7 +32,7 @@
         c.fillStyle = '#1B46A0'; c.fillRect(0, 0, W, H);
         K.paper(c, '#1B46A0', 'rgba(255,255,255,0.05)');
         const mv = K.io(t, m1.t - 0.4, m1.t + 1.6);
-        K.cam(c, { x: lerp(0, 190, mv) - 180 * K.io(t, m2.t - 0.3, m2.t + 0.9), zoom: lerp(1, 1.12, mv), ...K.drift(t, 2, 31) }, () => grid(c, t, 1340, 540, 620, m1.t + 1.2));
+        K.cam(c, { x: lerp(0, 190, mv) - 180 * K.io(t, m2.t - 0.3, m2.t + 0.9), zoom: lerp(1, 1.12, mv), ...K.drift(t, 2, 31) }, () => grid(c, t, 1340, 540, 620, m2.t + 2.2));
         K.chapter(c, t, t0 + 0.2, 'V', 'ПИТ МОНДРИАН', '1872 – 1944', { dur: m1.t - t0 - 0.1, x: 520 });
         K.track(c, 'НЕОПЛАСТИЦИЗМ', 470, 500, t, m2.t + 0.2, { size: 74, weight: 800, spacing: 4, wide: 30, shadow: 20 });
         K.text(c, '«жаңа пластика»', 470, 580, { size: 32, weight: 400, alpha: K.u(t, m2.t + 1, m2.t + 1.8), color: '#DCE6FF' });
@@ -280,6 +280,7 @@
 
   // ============ 13. HOW TO LOOK ============
   function blobs(ctx, t, x, y, w, h) {
+    if (K.has('comp6')) { G.kenBurns(ctx, K.IMG.comp6, x, y, w, h, t, S.look[0], S.look[1], { from: { zoom: 1.0, x: 0.5, y: 0.5 }, to: { zoom: 1.12, x: 0.55, y: 0.48 } }); return; }
     ctx.save(); ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip();
     ctx.fillStyle = '#F0E8D8'; ctx.fillRect(x, y, w, h);
     for (let i = 0; i < 9; i++) { const px = x + w * (0.5 + 0.4 * Math.sin(t * 0.13 + i * 2.1)), py = y + h * (0.5 + 0.38 * Math.cos(t * 0.11 + i * 1.3)), r = h * (0.12 + 0.1 * U.hash(i, 5)); if (i % 3 === 2) K.rot(ctx, px, py, t * 0.1 + i, () => K.rect(ctx, -r, -r * 0.7, r * 2, r * 1.4, PAL[i % 6])); else K.circle(ctx, px, py, r, PAL[i % 6]); }
@@ -305,7 +306,7 @@
         c.fillStyle = K.grad(c, 0, 0, W, H, [[0, '#0A1A52'], [1, '#07102E']]); c.fillRect(0, 0, W, H);
         K.paper(c, 'rgba(0,0,0,0)', 'rgba(255,255,255,0.035)');
         K.cam(c, { zoom: 1 + 0.05 * K.u(t, l3.t, t1), ...K.drift(t, 2, 93) }, () => {
-          K.shanyrak(c, 1560, 520, 330, 'rgba(226,182,89,0.7)', 5, t * 0.05, false);
+          if (K.has('swan')) K.framed(c, K.IMG.swan, 1520, 520, 560, { frame: 14 }); else K.shanyrak(c, 1560, 520, 330, 'rgba(226,182,89,0.7)', 5, t * 0.05, false);
           const d = l3.dur;
           K.text(c, 'Абстрактілі картинаны', 190, 380, { size: 34, weight: 400, align: 'left', color: '#C9D4F2', alpha: K.u(t, l3.t, l3.t + 0.6) });
           K.text(c, '«Не салынған?» деп емес,', 190, 470, { size: 74, weight: 800, align: 'left', alpha: K.u(t, l3.t + d * 0.3, l3.t + d * 0.3 + 0.6) });

@@ -17,7 +17,7 @@
       const how = IN[n];
       if (how === 'fade' && t < t0 + 0.9 && i > 0) {
         draw(names[i - 1]);
-        const b = K.buf(), x = b.getContext('2d'); (SCENES[n] || (() => {}))(x, t);
+        const b = K.offscreen((x) => (SCENES[n] || (() => {}))(x, t));
         ctx.save(); ctx.globalAlpha = K.io(t, t0, t0 + 0.9); ctx.drawImage(b, 0, 0, W, H); ctx.restore();
       } else draw(n);
       // dips to black around the chapter cuts
