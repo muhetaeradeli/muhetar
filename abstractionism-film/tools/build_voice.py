@@ -6,7 +6,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(ROOT)
 MODEL = os.environ.get('VO_MODEL', 'voices/kk_KZ-issai-high.onnx')
 SPEAKER = int(os.environ.get('VO_SPEAKER', '1'))      # 1 = Iseke (male narrator), 3 = Raya (female narrator)
-LENGTH = float(os.environ.get('VO_LENGTH', '1.04'))    # > 1 = slower, calmer
+LENGTH = float(os.environ.get('VO_LENGTH', '0.97'))    # > 1 = slower, calmer
 NOISE = float(os.environ.get('VO_NOISE', '0.78'))      # more = livelier intonation
 NOISE_W = float(os.environ.get('VO_NOISE_W', '0.92'))  # more = freer rhythm
 script = json.loads(subprocess.check_output(['node', '-e', "console.log(JSON.stringify(require('./script.js')))"]))

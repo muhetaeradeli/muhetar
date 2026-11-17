@@ -21,21 +21,21 @@
   // per scene: the lead-in before the first line, the tail after the last, and extra holds after a line
   // (music-only moments: a pan across a painting, the push into the Black Square, the kui "speaking")
   const PLAN = {
-    open: { pre: 12.6, post: 1.6 },
+    open: { pre: 12.0, post: 1.6 },
     define: { pre: 1.4, post: 1.0 },
-    roots: { pre: 3.0, post: 1.0 },
+    roots: { pre: 2.2, post: 1.0 },
     avant: { pre: 1.4, post: 1.2 },
-    birth: { pre: 2.6, post: 1.2 },
-    kandinsky: { pre: 3.4, post: 1.2, hold: { kan5: 5.0 } },
-    malevich: { pre: 3.4, post: 2.0, hold: { mal4: 3.6 } },
-    mondrian: { pre: 3.4, post: 1.2 },
-    bauhaus: { pre: 2.4, post: 1.2 },
-    newyork: { pre: 2.6, post: 1.6, hold: { ny3: 1.6 } },
+    birth: { pre: 2.0, post: 1.2 },
+    kandinsky: { pre: 2.8, post: 1.2, hold: { kan5: 3.6 } },
+    malevich: { pre: 2.8, post: 1.6, hold: { mal4: 2.8 } },
+    mondrian: { pre: 2.8, post: 1.2 },
+    bauhaus: { pre: 1.9, post: 1.2 },
+    newyork: { pre: 2.0, post: 1.4, hold: { ny3: 1.0 } },
     after: { pre: 1.4, post: 1.0 },
-    kazakh: { pre: 3.6, post: 1.0, hold: { kz4: 4.4 } },
+    kazakh: { pre: 2.8, post: 1.0, hold: { kz4: 3.4 } },
     look: { pre: 1.6, post: 1.4 },
     today: { pre: 1.2, post: 1.2 },
-    end: { pre: 1.8, post: 7.5 },
+    end: { pre: 1.6, post: 4.8 },
   };
   const snap = (t) => Math.ceil(t / BEAT - 1e-6) * BEAT; // scenes start on a beat
 
@@ -63,7 +63,7 @@
   // open the gaps between lines until the film is six minutes long (never tighter than 0.4 s)
   const nGaps = SCRIPT.reduce((a, s) => a + s.lines.length - 1, 0);
   let gap = 0.55, L = layout(gap);
-  for (let i = 0; i < 6; i++) { gap = Math.max(0.4, gap + (TARGET - 1.0 - L.total) / nGaps); L = layout(gap); }
+  for (let i = 0; i < 6; i++) { gap = Math.max(0.3, gap + (TARGET - 1.0 - L.total) / nGaps); L = layout(gap); }
   const DURATION = Math.max(TARGET, Math.ceil(L.total));
   L.scenes.end.t1 = DURATION;
   const names = L.names;
