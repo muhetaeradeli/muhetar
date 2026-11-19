@@ -3,3 +3,5 @@ voices/*.onnx
 node_modules/
 my-music/*
 !my-music/.gitkeep
+my-voice/*
+!my-voice/README.md
