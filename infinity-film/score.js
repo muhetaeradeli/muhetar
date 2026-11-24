@@ -6,8 +6,12 @@
   const node = typeof require !== 'undefined';
   const U = node ? require('./engine/util') : globalThis.U;
   const MU = node ? require('./engine/music') : globalThis.MUSIC;
-  const SCRIPT = node ? require('./script.js') : globalThis.SCRIPT;
+  const SCRIPT_ALL = node ? require('./script.js') : globalThis.SCRIPT;
   const VOT = node ? require('./voice-timing.js') : globalThis.VOT;
+  const CUT = node ? require('./cut.js') : globalThis.CUT;
+  // the cut keeps only its sentences (and drops the figures); a chapter with none of them is left out
+  const KEEP = CUT && new Set(CUT.keep);
+  const SCRIPT = !KEEP ? SCRIPT_ALL : SCRIPT_ALL.map((sc) => ({ ...sc, lines: sc.lines.filter((l) => l.kind !== 'figure' && KEEP.has(l.id)) })).filter((sc) => sc.lines.length);
   const { m, makeClock } = MU;
 
   const FPS = 25;
@@ -19,7 +23,7 @@
   const { T, BEAT, BAR } = clock;
 
   // lead-in before a chapter's first line and the tail after its last, by kind of chapter
-  const PLAN = { title: { pre: 4.6, post: 1.2 }, part: { pre: 1.6, post: 0.8 }, sub: { pre: 0.9, post: 0.5 } };
+  const PLAN = { title: { pre: 4.6, post: 1.2 }, part: { pre: 1.6, post: 0.8 }, sub: { pre: 0.9, post: 0.5 }, flow: { pre: 0.25, post: 0.35 } };
   const GAP = 0.55;          // between two sentences
   const AFTER_HEAD = 0.45;   // a little more after a heading is read
   const FIG_HOLD = 16;       // a diagram (Сызба 4, 5) builds itself to music, without narration
@@ -29,7 +33,7 @@
   let cur = 0;
   const scenes = {}, lines = [], figs = [];
   for (const sc of SCRIPT) {
-    const P = PLAN[sc.kind] || PLAN.sub;
+    const P = sc.lines[0].kind === 'heading' || sc.lines[0].kind === 'title' ? PLAN[sc.kind] || PLAN.sub : PLAN.flow;
     const t0 = snap(cur);
     cur = t0 + P.pre;
     const ls = [];
@@ -77,6 +81,6 @@
   const markers = { title: { t: ev.title, sync: 'av' }, fin: { t: ev.fin, sync: 'av' } };
   names.forEach((n) => { markers[n] = S[n][0]; });
 
-  const SCORE = { FPS, FORMAT, STYLE, W, H, SAFE, DURATION, clock, T, BEAT, BAR, S, m, names, scenes, lines, line, figs, sceneAt, subtitles, MOOD, ev, markers, gap: GAP, FIG_HOLD };
+  const SCORE = { CUT: CUT ? CUT.name : null, FPS, FORMAT, STYLE, W, H, SAFE, DURATION, clock, T, BEAT, BAR, S, m, names, scenes, lines, line, figs, sceneAt, subtitles, MOOD, ev, markers, gap: GAP, FIG_HOLD };
   if (node) module.exports = SCORE; else globalThis.SCORE = SCORE;
 })();

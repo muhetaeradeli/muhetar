@@ -214,6 +214,7 @@
   // ===== c17 — Уақытты табиғи құбылыстар арқылы анықтау (+ Сызба 4) =====
   P('L159', 's_before', mv('in'));
   Gr('L160', GR.dayParts({ id: 'L161' }));
+  Gr('L161', GR.dayParts({ id: 'L161' }), { ifCut: 'L160' }); // in a cut without L160 the day starts on L161
   Gr('L162', BG.night);
   P('L163', 'az_sunset', [{ zoom: 1.12, x: 0.5, y: 0.72 }, { zoom: 1.3, x: 0.5, y: 0.78 }], { draw: OV.moons('L163', 'Ай') });
   Pw('L163', 'Темірқазық', 'live_stars', [{ zoom: 1.5, x: 0.5, y: 0.25 }, { zoom: 1.6, x: 0.48, y: 0.22 }], { warm: 0, dim: 0.25, lead: 0.4, draw: OV.stars('L163', { until: (L.L164 || {}).end }) });

@@ -13,7 +13,7 @@
   // a band: one element repeated in rhythm; it builds, then runs; o.pull = a line id at which the camera pulls back
   GR.band = (o = {}) => (c, t, sh) => {
     if (!o.noBg) BG.stage(c, t, sh);
-    const t0 = sh.start + 0.3, pull = o.pull ? io(t, L[o.pull].t - 0.3, L[o.pull].end) : 0, z = lerp(1, 0.5, pull);
+    const t0 = sh.start + 0.3, pull = o.pull && L[o.pull] ? io(t, L[o.pull].t - 0.3, L[o.pull].end) : 0, z = lerp(1, 0.5, pull);
     const step = 170, n = Math.ceil(W / (step * z) / 2) + 2, off = Math.max(0, t - t0 - 2.6) * 40;
     c.save(); c.translate(CX, CY); c.scale(z, z);
     for (const dy of pull > 0.02 ? [-300, 0, 300] : [0]) {

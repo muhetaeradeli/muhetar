@@ -59,7 +59,7 @@
   const shots = [];
   const planned = new Set(E.map((e) => e.at));
   E.forEach((e, order) => {
-    const l = L[e.at]; if (!l) return;
+    const l = L[e.at]; if (!l || (e.ifCut && L[e.ifCut])) return; // ifCut: a stand-in used only when that line is cut
     const base = e.word ? at(e.at, e.word) : l.t;
     shots.push({ ...e, id: e.at, start: base - (e.lead ?? 0.45), fade: e.fade ?? 1.0, order });
   });
