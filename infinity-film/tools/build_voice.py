@@ -21,6 +21,8 @@ def tts(text, path):
 timing, mine = {}, 0
 for sc in script:
     for l in sc['lines']:
+        if l.get('kind') == 'figure': continue
+        l.setdefault('say', l['text'])
         src = next((f'my-voice/{l["id"]}.{e}' for e in ('wav', 'mp3', 'm4a', 'ogg', 'aac', 'flac') if os.path.exists(f'my-voice/{l["id"]}.{e}')), None)
         if src: mine += 1
         else:

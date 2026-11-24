@@ -1,6 +1,7 @@
-// ШЕКСІЗДІК ПЕН МӘҢГІЛІК (16:9, 6 minutes): the single timeline. The narration lines (script.js) and
-// their measured lengths (voice-timing.js, written by tools/build_voice.py) lay out every scene; the music and
-// the picture both read the result, so replacing a voice line re-times the whole film.
+// ШЕКСІЗДІК ПЕН МӘҢГІЛІК — the whole text (16:9, as long as the text takes): the single timeline.
+// Every sentence of the text is one narration line (script.js); its measured length (voice-timing.js, written
+// by tools/build_voice.py — from the synthetic voice or from a recording in my-voice/) lays out the film, so a
+// classmate's recording re-times the whole picture and the music automatically.
 (function () {
   const node = typeof require !== 'undefined';
   const U = node ? require('./engine/util') : globalThis.U;
@@ -9,7 +10,7 @@
   const VOT = node ? require('./voice-timing.js') : globalThis.VOT;
   const { m, makeClock } = MU;
 
-  const FPS = 30;
+  const FPS = 25;
   const FORMAT = '16:9';
   const STYLE = 'flat';
   const [W, H] = U.formatSize(FORMAT);
@@ -17,89 +18,65 @@
   const clock = makeClock({ bpm: 88, offset: 0 });
   const { T, BEAT, BAR } = clock;
 
-  const TARGET = 360; // six minutes
+  // lead-in before a chapter's first line and the tail after its last, by kind of chapter
+  const PLAN = { title: { pre: 4.6, post: 1.2 }, part: { pre: 1.6, post: 0.8 }, sub: { pre: 0.9, post: 0.5 } };
+  const GAP = 0.55;          // between two sentences
+  const AFTER_HEAD = 0.45;   // a little more after a heading is read
+  const FIG_HOLD = 16;       // a diagram (Сызба 4, 5) builds itself to music, without narration
+  const END_CARD = 10;
+  const snap = (t) => Math.ceil(t / BEAT - 1e-6) * BEAT; // chapters start on a beat
 
-  // per scene: the lead-in before the first line (the chapter card plays here), the tail after the last,
-  // and extra holds after a line (music-only moments)
-  const PLAN = {
-    open: { pre: 5.6, post: 0.6 },
-    steppe: { pre: 2.2, post: 0.6 },
-    eternal: { pre: 2.2, post: 0.6 },
-    sky: { pre: 2.2, post: 0.6 },
-    yurt: { pre: 2.2, post: 0.6 },
-    ornament: { pre: 2.2, post: 0.6 },
-    timespace: { pre: 2.2, post: 0.6 },
-    today: { pre: 2.2, post: 0.6 },
-    end: { pre: 1.6, post: 6.0 },
-  };
-  const snap = (t) => Math.ceil(t / BEAT - 1e-6) * BEAT; // scenes start on a beat
-
-  function layout(gap) {
-    let cur = 0;
-    const scenes = {}, lines = [];
-    for (const sc of SCRIPT) {
-      const P = PLAN[sc.scene];
-      const t0 = snap(cur);
-      cur = t0 + P.pre;
-      const ls = [];
-      sc.lines.forEach((l, i) => {
-        const dur = VOT[l.id] || Math.max(2, l.say.length / 14);
-        const line = { id: l.id, text: l.text, scene: sc.scene, t: cur, end: cur + dur, dur };
-        ls.push(line); lines.push(line);
-        cur += dur + ((P.hold && P.hold[l.id]) || 0) + (i < sc.lines.length - 1 ? gap : 0);
-      });
-      cur += P.post;
-      scenes[sc.scene] = { name: sc.scene, title: sc.title, t0, t1: cur, lines: ls };
-    }
-    return { scenes, lines, total: cur };
+  let cur = 0;
+  const scenes = {}, lines = [], figs = [];
+  for (const sc of SCRIPT) {
+    const P = PLAN[sc.kind] || PLAN.sub;
+    const t0 = snap(cur);
+    cur = t0 + P.pre;
+    const ls = [];
+    sc.lines.forEach((l, i) => {
+      if (l.kind === 'figure') { figs.push({ n: l.figure, t: cur, end: cur + FIG_HOLD, scene: sc.scene }); cur += FIG_HOLD + GAP; return; }
+      const dur = VOT[l.id] || Math.max(2, (l.say || l.text).length / 14);
+      const line = { id: l.id, kind: l.kind, text: l.text, scene: sc.scene, t: cur, end: cur + dur, dur };
+      ls.push(line); lines.push(line);
+      cur += dur + (i < sc.lines.length - 1 ? GAP + (l.kind === 'heading' || l.kind === 'title' || l.kind === 'caption' ? AFTER_HEAD : 0) : 0);
+    });
+    cur += P.post;
+    scenes[sc.scene] = { name: sc.scene, title: sc.title, kind: sc.kind, part: sc.part, t0, t1: cur, lines: ls };
   }
-  // open the gaps between lines until the film is six minutes long (never tighter than 0.4 s, never looser than 1.1 s)
-  const nGaps = SCRIPT.reduce((a, s) => a + s.lines.length - 1, 0);
-  let GAP = 0.6, LY = layout(GAP);
-  for (let i = 0; i < 6; i++) { GAP = Math.min(1.1, Math.max(0.4, GAP + (TARGET - LY.total) / nGaps)); LY = layout(GAP); }
-  const { scenes, lines } = LY;
   const names = SCRIPT.map((s) => s.scene);
-  const DURATION = Math.max(Math.ceil(LY.total), 60);
+  const DURATION = Math.ceil(cur + END_CARD);
   names.forEach((n, i) => { scenes[n].t1 = i < names.length - 1 ? scenes[names[i + 1]].t0 : DURATION; });
   const S = {}; names.forEach((n) => { S[n] = [scenes[n].t0, scenes[n].t1]; });
   const line = {}; lines.forEach((l) => { line[l.id] = l; });
-  const sceneAt = (t) => names.find((n) => t >= S[n][0] && t < S[n][1]) || 'end';
+  const sceneAt = (t) => names.find((n) => t >= S[n][0] && t < S[n][1]) || names[names.length - 1];
 
-  // subtitles: each line broken into chunks of at most ~58 characters, timed by their share of the line
+  // subtitles: each line broken into chunks of at most ~62 characters, timed by their share of the line
   const subtitles = [];
   for (const l of lines) {
     const words = l.text.split(' '), chunks = [];
     let c = '';
-    for (const w of words) { if (c && (c + ' ' + w).length > 58) { chunks.push(c); c = w; } else c = c ? c + ' ' + w : w; }
+    for (const w of words) { if (c && (c + ' ' + w).length > 62) { chunks.push(c); c = w; } else c = c ? c + ' ' + w : w; }
     if (c) chunks.push(c);
-    if (chunks.length > 1 && chunks[chunks.length - 1].length < 12) { const last = chunks.pop(); chunks[chunks.length - 1] += ' ' + last; }
+    if (chunks.length > 1 && chunks[chunks.length - 1].length < 14) { const last = chunks.pop(); chunks[chunks.length - 1] += ' ' + last; }
     const total = chunks.reduce((a, x) => a + x.length, 0);
     let t = l.t;
     chunks.forEach((x, i) => { const d = l.dur * x.length / total; subtitles.push({ t, end: i === chunks.length - 1 ? l.end + 0.35 : t + d, text: x }); t += d; });
   }
 
-  // ---------- the music plan: one mood per scene (song.js turns these into a dombra kui) ----------
-  //   theme: which melody · feel: 'shertpe' (plucked, lyrical) | 'gallop' | 'tokpe' (full strumming) · level 0..1
-  const MOOD = {
-    open: { theme: 'S', feel: 'shertpe', level: 0.5 },
-    steppe: { theme: 'A', feel: 'gallop', level: 0.62 },
-    eternal: { theme: 'B', feel: 'shertpe', level: 0.52 },
-    sky: { theme: 'S', feel: 'shertpe', level: 0.5 },
-    yurt: { theme: 'A', feel: 'gallop', level: 0.55 },
-    ornament: { theme: 'C', feel: 'tokpe', level: 0.66 },
-    timespace: { theme: 'S', feel: 'shertpe', level: 0.52 },
-    today: { theme: 'B', feel: 'gallop', level: 0.6 },
-    end: { theme: 'A', feel: 'shertpe', level: 0.55 },
-  };
+  // ---------- the music: a calm dombra under the narration, one mood per chapter ----------
+  //   theme: which melody · feel: 'shertpe' (plucked, lyrical) | 'gallop' · level 0..1
+  const THEMES = ['S', 'A', 'B', 'S', 'C', 'A'];
+  const MOOD = {};
+  names.forEach((n, i) => {
+    const k = scenes[n].kind;
+    MOOD[n] = k === 'title' || k === 'part' ? { theme: 'S', feel: 'shertpe', level: 0.5 } : { theme: THEMES[i % THEMES.length], feel: i % 3 === 1 ? 'gallop' : 'shertpe', level: 0.46 };
+  });
 
-  // ---------- named moments (both the sound and the picture read these) ----------
-  const ev = {
-    title: 1.2,                          // the title rises over the steppe
-    fin: lines[lines.length - 1].end + 1.2, // the last chord and the end title
-  };
+  // ---------- named moments ----------
+  const ev = { title: 1.2, fin: lines[lines.length - 1].end + 1.6 };
   const markers = { title: { t: ev.title, sync: 'av' }, fin: { t: ev.fin, sync: 'av' } };
   names.forEach((n) => { markers[n] = S[n][0]; });
 
-  const SCORE = { FPS, FORMAT, STYLE, W, H, SAFE, DURATION, clock, T, BEAT, BAR, S, m, names, scenes, lines, line, sceneAt, subtitles, MOOD, ev, markers, gap: GAP };
+  const SCORE = { FPS, FORMAT, STYLE, W, H, SAFE, DURATION, clock, T, BEAT, BAR, S, m, names, scenes, lines, line, figs, sceneAt, subtitles, MOOD, ev, markers, gap: GAP, FIG_HOLD };
   if (node) module.exports = SCORE; else globalThis.SCORE = SCORE;
 })();

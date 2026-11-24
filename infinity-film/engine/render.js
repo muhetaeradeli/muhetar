@@ -5,6 +5,8 @@
 //   node engine/render.js board [t …]            -> out/board.png (labelled storyboard: every marker by default)
 //   node engine/render.js clip <from> <to>       -> out/clip_<from>-<to>.mp4 (one section WITH sound, for quick previews)
 //   node engine/render.js video [workers]        -> out/video.mp4 (silent, parallel Chrome workers)
+//   node engine/render.js part <i> <n> [workers] -> out/parts/part_<i>.mp4: slice i of n, silent (long films: resumable)
+//   node engine/render.js join <n>              -> out/video.mp4 from the n parts, frame count verified
 //   node engine/render.js mux [name]             -> out/<name>.mp4 (video + out/music.wav, shareable H.264/AAC)
 //   node engine/render.js check [name]           -> out/check-sheet.png + loudness report of the final file
 //   node engine/render.js verify [name]          -> measures sound + picture at every sync marker of the final file (unclear = fail; --allow-unclear)
@@ -529,7 +531,22 @@ async function main() {
     await require(`./tools/${TOOLS[mode]}.js`)(CTX, mode, args);
     return;
   }
-  if (mode === 'mux' || mode === 'video') acquireLock();
+  if (mode === 'mux' || mode === 'video' || mode === 'part' || mode === 'join') acquireLock();
+  const PARTS = path.join(OUT, `parts${SUFFIX}`), partFile = (i) => path.join(PARTS, `part_${String(i).padStart(2, '0')}.mp4`);
+  const partRange = (i, n) => { const F = Math.round(DURATION * FPS); return [Math.round(F * i / n), Math.round(F * (i + 1) / n)]; };
+  if (mode === 'join') {
+    // the parts, joined losslessly (they share one encoder setting); only a verified file reaches out/video.mp4
+    const n = parseInt(args[0], 10), total = Math.round(DURATION * FPS);
+    for (let i = 0; i < n; i++) { const [f0, f1] = partRange(i, n); if (!fs.existsSync(partFile(i)) || countFrames(partFile(i)) !== f1 - f0) throw new Error(`part ${i} of ${n} is missing or incomplete: node engine/render.js part ${i} ${n}`); }
+    fs.writeFileSync(path.join(PARTS, 'list.txt'), Array.from({ length: n }, (_, i) => `file '${partFile(i)}'`).join('\n'));
+    const tmp = path.join(PARTS, 'joined.mp4');
+    execFileSync(FFMPEG, ['-v', 'error', '-y', '-f', 'concat', '-safe', '0', '-i', path.join(PARTS, 'list.txt'), '-c', 'copy', tmp]);
+    const frames = countFrames(tmp);
+    if (frames !== total) throw new Error(`the joined video has ${frames} frames, expected ${total}`);
+    fs.renameSync(tmp, VIDEO);
+    console.log(`out/${path.basename(VIDEO)} joined from ${n} parts (${frames} frames verified)`);
+    return;
+  }
   if (mode === 'mux' || mode === 'check' || mode === 'verify') {
     const nameArg = args.find((a) => !a.startsWith('--'));
     let file = finalName(nameArg);
@@ -562,7 +579,7 @@ async function main() {
     }
     return;
   }
-  if (!['stills', 'sheet', 'board', 'clip', 'video', 'preview', 'cast'].includes(mode)) {
+  if (!['stills', 'sheet', 'board', 'clip', 'video', 'part', 'preview', 'cast'].includes(mode)) {
     console.log(`usage: node engine/render.js <mode> ... [--draft] [--format 9:16]\nmodes: stills sheet board clip video mux check verify preview cast analyze ${Object.keys(TOOLS).join(' ')}`);
     return;
   }
@@ -717,6 +734,15 @@ async function main() {
       execFileSync(FFMPEG, ['-v', 'error', '-y', '-i', dest, '-vf', `fps=12,${scale},split[a][b];[a]palettegen=max_colors=160:stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=4:diff_mode=rectangle`, '-loop', '0', g]);
       console.log(`out/${path.basename(g)} (${(fs.statSync(g).size / 1e6).toFixed(1)} MB)`);
     }
+  } else if (mode === 'part') {
+    // slice i of n (silent). A part already on disk with the right frame count is kept, so a stopped run resumes.
+    const i = parseInt(args[0], 10), n = parseInt(args[1], 10), workers = parseInt(args[2] || String(Math.max(2, os.cpus().length - 1)), 10);
+    if (!(i >= 0 && i < n)) throw new Error('usage: node engine/render.js part <i> <n> [workers]   (0 <= i < n)');
+    const [f0, f1] = partRange(i, n), dest = partFile(i);
+    fs.mkdirSync(PARTS, { recursive: true });
+    if (fs.existsSync(dest) && countFrames(dest) === f1 - f0) { console.log(`part ${i}/${n} already done`); return; }
+    const { frames, secs } = await renderRange(f0, f1, workers, dest);
+    console.log(`part ${i}/${n}: ${frames} frames (${(f0 / FPS).toFixed(1)}–${(f1 / FPS).toFixed(1)} s) done in ${secs.toFixed(1)}s`);
   } else if (mode === 'video') {
     const workers = parseInt(args[0] || String(Math.max(2, os.cpus().length - 1)), 10);
     const { frames, secs } = await renderRange(0, Math.round(DURATION * FPS), workers, VIDEO);
