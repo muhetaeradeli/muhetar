@@ -1,5 +1,5 @@
-// SCENES (1-minute draft): the title over the steppe, «Қазақтың даласы» in photographs, the turning sky,
-// the yurt and its shanyrak, the endless ornament, the end card.
+// SCENES (1-minute draft): the title over the steppe, «Қазақтың даласы» in photographs, sunset into the starry
+// sky, the yurt and the view up to its roof, the carpets and the endless ornament, the end card.
 // Every photograph has a painted fallback, so the film renders even when assets/ is empty.
 (function () {
   const U = globalThis.U, G = globalThis.G, K = globalThis.K, SC = globalThis.SCORE;
@@ -101,13 +101,24 @@
     for (let i = 0; i < 1400; i++) { c.fillStyle = `rgba(255,255,255,${0.012 + U.hash(i, 61) * 0.02})`; c.fillRect(U.hash(i, 62) * W, U.hash(i, 63) * H, 1 + U.hash(i, 64) * 3, 1 + U.hash(i, 65) * 3); }
   }
 
+  // Ken Burns moves run FADE seconds past the end of their shot, so the picture keeps moving through every dissolve
+  const FADE = 1.4, XF = 1.2;
+  // where a point of a photograph (fraction py of its height) lands on screen during a Ken Burns move
+  const kbY = (name, t, t0, t1, from, to, py, e = ease.inOutQuad) => {
+    const img = IMG[name]; if (!img) return null;
+    const u = e(clamp((t - t0) / (t1 - t0))), zoom = lerp(from.zoom, to.zoom, u), fy = lerp(from.y, to.y, u);
+    const cover = Math.max(W / img.width, VIEW.h / img.height) * zoom, ih = img.height * cover;
+    const oy = clamp(VIEW.h / 2 - fy * ih, VIEW.h - ih, 0);
+    return VIEW.y + oy + py * ih;
+  };
+
   // ============ 1. THE TITLE over the steppe at sunset ============
   SCENES.open = (ctx, t) => {
     const [, t1] = S.open, o1 = L.o1;
-    if (!photo(ctx, 'sunset_south', t, 0, t1 + 1, { zoom: 1.2, x: 0.5, y: 0.55 }, { zoom: 1.04, x: 0.5, y: 0.5 })) steppe(ctx, t, 0.47, { pan: t * 8 });
-    else grade(ctx, 0.12, 0.3);
-    ctx.fillStyle = `rgba(0,0,0,${0.38 * (1 - K.u(t, o1.end - 1.2, o1.end + 0.6))})`; ctx.fillRect(0, 0, W, H);
-    K.alpha(ctx, 1 - K.u(t, o1.end - 1.0, o1.end + 0.3), () => {
+    if (!photo(ctx, 'ak_sunset', t, 0, t1 + FADE, { zoom: 1.28, x: 0.47, y: 0.62 }, { zoom: 1.06, x: 0.5, y: 0.58 })) steppe(ctx, t, 0.47, { pan: t * 8 });
+    else grade(ctx, 0.1, 0.3);
+    ctx.fillStyle = `rgba(0,0,0,${0.4 * (1 - K.u(t, o1.end - 1.2, o1.end + 0.8))})`; ctx.fillRect(0, 0, W, H);
+    K.alpha(ctx, 1 - K.u(t, o1.end - 1.0, o1.end + 0.4), () => {
       const s = K.io(t, ev.title, ev.title + 2.4);
       K.alpha(ctx, s, () => K.shanyrak(ctx, 960, 318, 58, C.gold, 3, t * 0.08));
       K.text(ctx, 'ҚАЗАҚТЫҢ ДӘСТҮРЛІ ҚОЛӨНЕРІНДЕГІ', 960, 440, { size: 30, weight: 700, color: C.gold, spacing: 9, alpha: K.u(t, ev.title + 0.4, ev.title + 1.4), shadow: 14 });
@@ -121,85 +132,94 @@
   // ============ 2. «ҚАЗАҚТЫҢ ДАЛАСЫ»: the steppe in photographs ============
   SCENES.steppe = (ctx, t) => {
     const [t0, t1] = S.steppe, d1 = L.d1, d2 = L.d2, d3 = L.d3;
+    const s2 = d2.t - 0.6, s3 = d3.t - 0.6;
     K.seq(ctx, t, [
       { at: t0, draw: (c, t) => {
-        if (photo(c, 'steppe_horses', t, t0, d2.t, { zoom: 1.0, x: 0.5, y: 0.55 }, { zoom: 1.14, x: 0.56, y: 0.55 })) grade(c, 0.06, 0.3);
+        // horses on the open steppe
+        if (photo(c, 'nin_pano', t, t0, s2 + XF, { zoom: 1.0, x: 0.42, y: 0.6 }, { zoom: 1.16, x: 0.36, y: 0.62 })) grade(c, 0.06, 0.3);
         else steppe(c, t, 0.1, { pan: (t - t0) * 30 });
-        K.chapter(c, t, t0 + 0.3, '', 'ҚАЗАҚТЫҢ ДАЛАСЫ', 'ұлан-ғайыр кеңістік', { dur: d1.end - t0 - 0.2 });
+        K.chapter(c, t, t0 + 0.5, '', 'ҚАЗАҚТЫҢ ДАЛАСЫ', 'ұлан-ғайыр кеңістік', { dur: d1.end - t0 - 0.2 });
       } },
-      { at: d2.t - 0.4, fade: 0.9, draw: (c, t) => {
-        // a slow pan across the open steppe while the line names what the eye sees
-        const u0 = d2.t - 0.4, u1 = d3.t;
-        if (photo(c, 'horses_wide', t, u0, u1, { zoom: 1.12, x: 0.15, y: 0.55 }, { zoom: 1.12, x: 0.85, y: 0.55 }, (x) => x)) grade(c, 0.08, 0.35);
-        else steppe(c, t, 0.22, { pan: (t - u0) * 70 });
+      { at: s2, fade: XF, draw: (c, t) => {
+        // a slow pan across the open steppe and the big sky while the line names what the eye sees
+        if (photo(c, 'undp_altyn', t, s2, s3 + XF, { zoom: 1.22, x: 0.2, y: 0.5 }, { zoom: 1.22, x: 0.8, y: 0.45 }, (x) => x)) grade(c, 0.08, 0.35);
+        else steppe(c, t, 0.22, { pan: (t - s2) * 70 });
         ['Ұлан-ғайыр дала', 'ашық аспан', 'алыс көкжиек'].forEach((w, i) => {
-          const ta = at(d2, w), a = K.win(t, ta, d3.t - 0.2, 0.5, 0.5); if (a <= 0) return;
-          const y = 360 + i * 92, u = K.out(t, ta, ta + 0.7);
+          const ta = at(d2, w), a = K.win(t, ta, s3 + 0.4, 0.5, 0.6); if (a <= 0) return;
+          const y = 330 + i * 92, u = K.out(t, ta, ta + 0.7);
           K.rect(c, 140, y - 26, 6, 52 * u, C.gold);
-          K.text(c, w, 168 + 24 * (1 - u), y, { size: 62, weight: 800, align: 'left', alpha: a, shadow: 22 });
+          K.text(c, w, 168 + 24 * (1 - u), y, { size: 62, weight: 800, align: 'left', alpha: a, shadow: 26 });
         });
       } },
-      { at: d3.t - 0.4, fade: 0.9, draw: (c, t) => {
-        // the camera pulls back; the horizon becomes a line without an end
-        if (photo(c, 'steppes', t, d3.t - 0.4, t1, { zoom: 1.32, x: 0.5, y: 0.6 }, { zoom: 1.0, x: 0.5, y: 0.55 })) grade(c, 0.08, 0.3);
+      { at: s3, fade: XF, draw: (c, t) => {
+        // the camera pulls back over the flat steppe; the horizon becomes a line without an end
+        const from = { zoom: 1.32, x: 0.5, y: 0.34 }, to = { zoom: 1.0, x: 0.5, y: 0.3 };
+        if (photo(c, 'undp_saiga', t, s3, t1 + FADE, from, to)) {
+          // give the pale sky some depth, warm towards the horizon
+          const hz = kbY('undp_saiga', t, s3, t1 + FADE, from, to, 0.276);
+          c.fillStyle = K.grad(c, 0, VIEW.y, 0, hz, [[0, 'rgba(34,52,92,0.55)'], [0.7, 'rgba(120,110,120,0.18)'], [1, 'rgba(255,190,120,0.12)']]); c.fillRect(0, VIEW.y, W, hz - VIEW.y);
+          grade(c, 0.1, 0.35);
+        }
         else steppe(c, t, 0.3, { pan: (t - d3.t) * 18 });
-        const ta = at(d3, 'шетсіздігі'), u = K.io(t, ta - 0.6, ta + 2.6), hy = IMG.steppes ? VIEW.y + VIEW.h * 0.47 : HZ - 14;
-        K.alpha(c, K.win(t, ta - 0.6, t1 - 0.2, 0.3, 0.8), () => {
-          K.glow(c, 960, hy, 520 * u + 40, 'rgba(255,214,140,0.35)');
+        const ta = at(d3, 'шетсіздігі'), u = K.io(t, ta - 0.6, ta + 2.6);
+        const hy = kbY('undp_saiga', t, s3, t1 + FADE, from, to, 0.276) ?? HZ - 14;
+        K.alpha(c, K.win(t, ta - 0.6, t1 + 0.6, 0.3, 1.2), () => {
+          K.glow(c, 960, hy, 380 * u + 40, 'rgba(255,190,100,0.3)');
           K.line(c, 960, hy, 960 - 1000 * u, hy, 'rgba(255,226,160,0.95)', 3);
           K.line(c, 960, hy, 960 + 1000 * u, hy, 'rgba(255,226,160,0.95)', 3);
           K.streak(c, 960, hy, 700 * u, '255,226,170', 0.7);
         });
-        K.text(c, 'ШЕКСІЗДІК', 960, hy - 92, { size: 58, weight: 800, spacing: 16, color: '#FFF4DC', shadow: 34, alpha: K.win(t, ta + 0.8, t1 - 0.2, 0.8, 0.6) });
+        K.text(c, 'ШЕКСІЗДІК', 960, hy + 96, { size: 60, weight: 800, spacing: 16, color: '#FFF4DC', shadow: 34, alpha: K.win(t, ta + 0.8, t1 + 0.6, 0.8, 1.0) });
       } },
     ]);
   };
 
-  // ============ 3. THE TURNING SKY: sun, moon, the circle of the year ============
+  // ============ 3. THE TURNING SKY: sunset, then the stars; the circle of the year ============
   SCENES.sky = (ctx, t) => {
-    const [t0, t1] = S.sky, a1 = L.a1;
-    const ph = lerp(0.2, 0.96, K.io(t, t0, ev.night + 1.8));
-    K.cam(ctx, { zoom: 1.04, ...K.drift(t, 3, 21) }, () => steppe(ctx, t, ph, { pan: (t - t0) * 14, moon: K.io(t, ev.night - 1.4, t1) }));
+    const [t0, t1] = S.sky, a1 = L.a1, n0 = ev.night - 0.9;
+    K.seq(ctx, t, [
+      { at: t0, draw: (c, t) => {
+        if (photo(c, 'az_sunset', t, t0 - FADE, n0 + 1.6, { zoom: 1.12, x: 0.5, y: 0.72 }, { zoom: 1.3, x: 0.5, y: 0.78 })) grade(c, 0.1, 0.25);
+        else steppe(c, t, lerp(0.3, 0.55, K.u(t, t0, n0)), { pan: (t - t0) * 14 });
+      } },
+      { at: n0, fade: 1.6, draw: (c, t) => {
+        if (photo(c, 'live_stars', t, n0, t1 + FADE, { zoom: 1.45, x: 0.5, y: 0.2 }, { zoom: 1.3, x: 0.5, y: 0.25 })) grade(c, 0, 0.2);
+        else steppe(c, t, 0.95, { pan: (t - t0) * 14, moon: K.io(t, n0, t1) });
+      } },
+    ]);
     // the year as a wheel: four seasons turning on one ring
-    const ta = at(a1, 'маусымдардың'), a = K.win(t, ta - 0.4, t1 - 0.1, 0.8, 0.6);
+    const ta = at(a1, 'маусымдардың'), a = K.win(t, ta - 0.4, t1 + 0.8, 0.8, 1.2);
     if (a > 0) K.alpha(ctx, a, () => {
-      const cx = 1010, cy = 380, R = 170, u = K.io(t, ta - 0.4, ta + 1.6), rot = -Math.PI / 2 + (t - ta) * 0.35;
-      ctx.save(); ctx.strokeStyle = 'rgba(255,226,160,0.85)'; ctx.lineWidth = 3; ctx.setLineDash([2, 12]); ctx.lineCap = 'round';
+      const cx = 1010, cy = 390, R = 170, u = K.io(t, ta - 0.4, ta + 1.6), rot = -Math.PI / 2 + (t - ta) * 0.35;
+      ctx.save(); ctx.strokeStyle = 'rgba(255,226,160,0.9)'; ctx.lineWidth = 3; ctx.setLineDash([2, 12]); ctx.lineCap = 'round';
+      ctx.shadowColor = 'rgba(0,0,0,0.6)'; ctx.shadowBlur = 8;
       ctx.beginPath(); ctx.arc(cx, cy, R, rot, rot + u * Math.PI * 2); ctx.stroke(); ctx.restore();
       ['КӨКТЕМ', 'ЖАЗ', 'КҮЗ', 'ҚЫС'].forEach((s, i) => {
         const an = rot + i * Math.PI / 2, x = cx + Math.cos(an) * R, y = cy + Math.sin(an) * R;
         K.alpha(ctx, K.u(t, ta - 0.2 + i * 0.35, ta + 0.4 + i * 0.35), () => {
           K.circle(ctx, x, y, 7, C.gold);
-          K.text(ctx, s, x + Math.cos(an) * 58, y + Math.sin(an) * 40, { size: 30, weight: 700, spacing: 4, shadow: 16 });
+          K.text(ctx, s, x + Math.cos(an) * 58, y + Math.sin(an) * 40, { size: 30, weight: 700, spacing: 4, shadow: 18 });
         });
       });
     });
-    K.label(ctx, t, t0 + 0.6, t1 - 0.3, 'Циклдік уақыт', 'күн мен түн · жыл мезгілдері · айналым');
+    K.label(ctx, t, t0 + 0.8, t1 - 0.3, 'Циклдік уақыт', 'күн мен түн · жыл мезгілдері · айналым');
   };
 
-  // ============ 4. THE YURT and its shanyrak ============
+  // ============ 4. THE YURT, then up to its roof ============
   SCENES.yurt = (ctx, t) => {
-    const [t0, t1] = S.yurt;
+    const [t0, t1] = S.yurt, sh = ev.shanyrak - 0.4;
     K.seq(ctx, t, [
       { at: t0, draw: (c, t) => {
-        if (photo(c, 'kazakh_yurt', t, t0, ev.shanyrak + 1, { zoom: 1.0, x: 0.5, y: 0.5 }, { zoom: 1.12, x: 0.5, y: 0.45 })) grade(c, 0.08, 0.3);
+        if (photo(c, 'ir_yurt', t, t0 - FADE, sh + XF, { zoom: 1.1, x: 0.5, y: 0.56 }, { zoom: 1.24, x: 0.48, y: 0.52 })) grade(c, 0.06, 0.3);
         else { steppe(c, t, 0.12, { pan: (t - t0) * 8 }); K.yurt(c, 960, HZ + 170, 2.3); }
-        K.label(c, t, t0 + 0.5, ev.shanyrak - 0.1, 'Киіз үй', 'дөңгелек пішін — әлемнің тұтастығы');
+        K.label(c, t, t0 + 0.8, sh, 'Киіз үй', 'дөңгелек пішін — әлемнің тұтастығы');
       } },
-      { at: ev.shanyrak, fade: 0.9, draw: (c, t) => {
-        // the crown of the yurt seen from below, turning slowly like the sky above it
-        const rot = (t - ev.shanyrak) * 0.06, img = IMG.shanyrak_kz;
-        K.cam(c, { rot }, () => {
-          if (img) G.kenBurns(c, img, -340, -340, W + 680, H + 680, t, ev.shanyrak, t1, { from: { zoom: 1.0, x: 0.5, y: 0.5 }, to: { zoom: 1.12, x: 0.5, y: 0.5 } });
-          else {
-            felt(c, '#3A2416');
-            K.glow(c, 960, 540, 330, 'rgba(160,200,255,0.55)');
-            K.circle(c, 960, 540, 230, '#6FA0D8');
-            for (let i = 0; i < 48; i++) { const an = i / 48 * Math.PI * 2; K.line(c, 960 + Math.cos(an) * 250, 540 + Math.sin(an) * 250, 960 + Math.cos(an) * 1300, 540 + Math.sin(an) * 1300, '#C98B4A', 9, K.io(t, ev.shanyrak, ev.shanyrak + 1.6)); }
-            K.shanyrak(c, 960, 540, 240, '#D9A25A', 14, 0, false);
-          }
-        });
-        K.label(c, t, ev.shanyrak + 0.4, t1 - 0.2, 'Шаңырақ', 'кеңістікті аспанмен байланыстырады', { right: true });
+      { at: sh, fade: XF, draw: (c, t) => {
+        // inside: the camera tilts up the lattice and the roof poles towards the crown, where the sky comes in
+        if (photo(c, 'ch_int1', t, sh, t1 + FADE, { zoom: 1.3, x: 0.5, y: 0.7 }, { zoom: 1.75, x: 0.5, y: 0.05 })) grade(c, 0.05, 0.3);
+        else { felt(c, '#3A2416'); K.shanyrak(c, 960, 540, 240, '#D9A25A', 14, (t - sh) * 0.06, false); }
+        K.glow(c, 960, VIEW.y - 40, 700, 'rgba(255,240,210,0.45)', K.io(t, sh + 1.0, t1));
+        K.label(c, t, sh + 0.6, t1 - 0.2, 'Шаңырақ', 'кеңістікті аспанмен байланыстырады', { right: true });
       } },
     ]);
   };
@@ -207,46 +227,47 @@
   // ============ 5. THE ENDLESS ORNAMENT ============
   SCENES.ornament = (ctx, t) => {
     const [t0, t1] = S.ornament;
-    K.seq(ctx, t, [
-      { at: t0, draw: (c, t) => {
-        if (photo(c, 'syrmak', t, t0, ev.band + 1, { zoom: 1.5, x: 0.3, y: 0.45 }, { zoom: 1.5, x: 0.7, y: 0.55 }, (x) => x)) grade(c, 0.05, 0.25);
-        else { felt(c); K.band(c, VIEW.y + 160, 120, t); K.band(c, VIEW.y + VIEW.h - 280, 120, t, { speed: -14 }); }
-        K.label(c, t, t0 + 0.4, ev.band - 0.1, 'Сырмақ', 'қазақтың киіз бұйымы');
-      } },
-      { at: ev.band, fade: 0.8, draw: (c, t) => {
-        felt(c);
-        c.fillStyle = K.radial(c, 960, 520, 60, 760, [[0, 'rgba(255,200,120,0.16)'], [1, 'rgba(0,0,0,0)']]); c.fillRect(0, 0, W, H);
-        const u = K.io(t, ev.band, ev.band + 2.4);
-        scroll(c, VIEW.y + 82, 30, 110, t, { u, lw: 5 });
-        scroll(c, VIEW.y + VIEW.h - 82, 30, 110, t, { u, lw: 5, dir: -1 });
-        K.horns(c, 960, 330, 300, C.gold, 12, K.io(t, ev.band + 0.2, ev.band + 2.6));
-        c.save(); c.strokeStyle = 'rgba(226,182,89,0.7)'; c.lineWidth = 3; c.setLineDash([3, 14]); c.lineCap = 'round';
-        const r = (t - ev.band) * 0.25; c.beginPath(); c.arc(960, 460, 250, r, r + u * Math.PI * 2); c.stroke(); c.restore();
-        K.text(c, 'ҮЗІЛМЕЙТІН СЫЗЫҚ · ҚАЙТАЛАНАТЫН ЫРҒАҚ', 960, VIEW.y + VIEW.h - 170, { size: 30, weight: 700, spacing: 7, color: CREAM, alpha: K.u(t, ev.band + 1.4, ev.band + 2.4), shadow: 12 });
-      } },
-    ]);
+    // the carpets of a Kazakh yurt: the camera glides along them, then the pattern lifts off as one endless line
+    const carpet = (c, t, dim) => {
+      if (photo(c, 'ch_int2', t, t0 - FADE, t1 + FADE, { zoom: 1.45, x: 0.25, y: 0.4 }, { zoom: 1.45, x: 0.8, y: 0.5 }, (x) => x)) grade(c, 0.05, 0.25);
+      else felt(c);
+      if (dim > 0) { c.fillStyle = `rgba(8,18,52,${0.82 * dim})`; c.fillRect(0, 0, W, H); }
+    };
+    const dim = K.io(t, ev.band - 0.6, ev.band + 1.0);
+    carpet(ctx, t, dim);
+    K.label(ctx, t, t0 + 0.6, ev.band - 0.2, 'Ою-өрнек', 'киіз үйдің сырмақ пен тұскиіздері');
+    if (dim > 0) K.alpha(ctx, dim, () => {
+      ctx.fillStyle = K.radial(ctx, 960, 520, 60, 760, [[0, 'rgba(255,200,120,0.16)'], [1, 'rgba(0,0,0,0)']]); ctx.fillRect(0, 0, W, H);
+      const u = K.io(t, ev.band, ev.band + 2.4);
+      scroll(ctx, VIEW.y + 82, 30, 110, t, { u, lw: 5 });
+      scroll(ctx, VIEW.y + VIEW.h - 82, 30, 110, t, { u, lw: 5, dir: -1 });
+      K.horns(ctx, 960, 330, 300, C.gold, 12, K.io(t, ev.band + 0.2, ev.band + 2.6));
+      ctx.save(); ctx.strokeStyle = 'rgba(226,182,89,0.7)'; ctx.lineWidth = 3; ctx.setLineDash([3, 14]); ctx.lineCap = 'round';
+      const r = (t - ev.band) * 0.25; ctx.beginPath(); ctx.arc(960, 460, 250, r, r + u * Math.PI * 2); ctx.stroke(); ctx.restore();
+      K.text(ctx, 'ҮЗІЛМЕЙТІН СЫЗЫҚ · ҚАЙТАЛАНАТЫН ЫРҒАҚ', 960, VIEW.y + VIEW.h - 170, { size: 30, weight: 700, spacing: 7, color: CREAM, alpha: K.u(t, ev.band + 1.4, ev.band + 2.4), shadow: 12 });
+    });
   };
 
   // ============ 6. THE END: back to the steppe, the title, the credits ============
   SCENES.end = (ctx, t) => {
     const [t0, t1] = S.end;
-    if (photo(ctx, 'sunset_steppe2', t, t0, t1, { zoom: 1.25, x: 0.5, y: 0.55 }, { zoom: 1.0, x: 0.5, y: 0.5 })) grade(ctx, 0.12, 0.3);
+    if (photo(ctx, 'my_1', t, t0 - FADE, t1, { zoom: 1.3, x: 0.45, y: 0.6 }, { zoom: 1.02, x: 0.5, y: 0.55 })) grade(ctx, 0.1, 0.3);
     else steppe(ctx, t, lerp(0.42, 0.56, K.u(t, t0, t1)), { pan: (t - t0) * 10 });
-    ctx.fillStyle = `rgba(0,0,0,${0.6 * K.io(t, ev.fin - 0.8, ev.fin + 1.0)})`; ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = `rgba(0,0,0,${0.62 * K.io(t, ev.fin - 0.8, ev.fin + 1.2)})`; ctx.fillRect(0, 0, W, H);
     K.alpha(ctx, K.u(t, ev.fin - 0.2, ev.fin + 1.0), () => {
       K.shanyrak(ctx, 960, 300, 52, C.gold, 3, t * 0.08);
       K.text(ctx, 'ШЕКСІЗДІК ПЕН МӘҢГІЛІК', 960, 420, { size: 74, weight: 800, spacing: 5, shadow: 24 });
       K.rect(ctx, 960 - 200, 470, 400, 2, C.gold);
     });
-    const cr = (globalThis.CREDITS || []).filter((x) => USED.includes(x.name));
+    const cr = globalThis.CREDITS || [];
     const people = [...new Set(cr.map((x) => x.author))].join(' · ');
+    const lics = [...new Set(cr.map((x) => x.license.replace(/ \d\.\d$/, '')))].join(' / ');
     const lines = [
       'Мәтін: «Қазақтың дәстүрлі қолөнеріндегі шексіздік пен мәңгілік идеясы»',
-      people ? `Фото: ${people} — Wikimedia Commons (CC BY / CC BY-SA / CC0)` : '',
+      people ? `Фото: ${people}` : '',
+      people ? `Flickr, ${lics}` : '',
       'Дауыс: ISSAI KazakhTTS (синтез) · Музыка: домбыраға арналған түпнұсқа күй',
     ].filter(Boolean);
-    lines.forEach((s, i) => K.text(ctx, s, 960, 560 + i * 44, { size: i === 1 && s.length > 110 ? 19 : 23, weight: 400, color: 'rgba(243,234,210,0.85)', alpha: K.u(t, ev.fin + 0.8 + i * 0.3, ev.fin + 1.6 + i * 0.3) }));
+    lines.forEach((s, i) => K.text(ctx, s, 960, 545 + i * 40, { size: s.length > 100 ? 19 : 22, weight: 400, color: 'rgba(243,234,210,0.85)', alpha: K.u(t, ev.fin + 0.8 + i * 0.25, ev.fin + 1.6 + i * 0.25) }));
   };
-  // the photographs the film shows (only these are credited on the end card)
-  const USED = ['sunset_south', 'steppe_horses', 'horses_wide', 'steppes', 'kazakh_yurt', 'shanyrak_kz', 'syrmak', 'sunset_steppe2'];
 })();

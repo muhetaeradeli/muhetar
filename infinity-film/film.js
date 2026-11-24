@@ -5,7 +5,8 @@
   const { S, names, ev } = SC;
   const W = G.W, H = G.H;
   // how each scene arrives: 'dip' = through black, 'fade' = a dissolve, 'cut'
-  const IN = { open: 'dip', steppe: 'dip', sky: 'dip', yurt: 'fade', ornament: 'dip', end: 'dip' };
+  const IN = { open: 'dip', steppe: 'fade', sky: 'fade', yurt: 'fade', ornament: 'fade', end: 'fade' };
+  const XFADE = 1.4; // every chapter dissolves into the next
   const DIP = 0.45;
   Studio.film({
     fadeOut: 2.2,
@@ -15,10 +16,10 @@
       const n = SC.sceneAt(t), i = names.indexOf(n), [t0, t1] = S[n];
       const draw = (name) => { ctx.save(); ctx.beginPath(); ctx.rect(0, K.BAR, W, H - 2 * K.BAR); ctx.clip(); (SCENES[name] || (() => {}))(ctx, t); ctx.restore(); };
       const how = IN[n];
-      if (how === 'fade' && t < t0 + 0.9 && i > 0) {
+      if (how === 'fade' && t < t0 + XFADE && i > 0) {
         draw(names[i - 1]);
         const b = K.buf(), x = b.getContext('2d'); (SCENES[n] || (() => {}))(x, t);
-        ctx.save(); ctx.globalAlpha = K.io(t, t0, t0 + 0.9); ctx.drawImage(b, 0, 0, W, H); ctx.restore();
+        ctx.save(); ctx.globalAlpha = K.io(t, t0, t0 + XFADE); ctx.drawImage(b, 0, 0, W, H); ctx.restore();
       } else draw(n);
       // dips to black around the chapter cuts
       let dark = 0;
