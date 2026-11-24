@@ -8,7 +8,16 @@ paints that shot instead."""
 import json, os, subprocess, sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # the photographs the film uses, in order of appearance
-CHOSEN = ['ak_sunset', 'nin_pano', 'undp_altyn', 'undp_saiga', 'az_sunset', 'live_stars', 'ir_yurt', 'ch_int1', 'ch_int2', 'my_1']
+CHOSEN = [
+    'ak_sunset', 'live_stars', 's_sunrise', 'p_spin', 'c_pattern',                                  # кіріспе
+    'nin_pano', 'undp_altyn', 'my_2', 'p_eagle2', 'undp_saiga', 's_talas', 's_apricot',             # дала
+    's_sunrise2', 'az_sunset', 's_before', 'undp_crane', 'up_cold',                                 # аспан мен уақыт
+    's_alatau3', 'p_eagle', 'p_grandma', 'p_nomadfam', 'p_family', 'ch_int3',                       # мәңгілік
+    'gv_yurt', 'ir_yurt', 'y_frame2', 'ch_int1', 'y_ceilnight', 'c_inger',                          # киіз үй
+    'ch_int2', 'u_tyl4', 'p_chris',                                                                 # ою-өрнек
+    'a_ast2', 'c_costume', 'u_lobby', 'u_museum', 'u_pch1', 'dal_objets',                           # бүгін
+    'my_1',                                                                                         # соңы
+]
 src = sys.argv[1]
 meta = json.load(open(os.path.join(src, 'meta.json')))
 os.makedirs(os.path.join(ROOT, 'assets'), exist_ok=True)

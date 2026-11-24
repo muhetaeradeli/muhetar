@@ -8,6 +8,34 @@
   "url": "https://www.flickr.com/photos/61188391@N06/6124507756"
  },
  {
+  "name": "live_stars",
+  "title": "Karkara 大本营的星空 / starry night in Karkara base camp",
+  "author": "livepine",
+  "license": "CC BY 2.0",
+  "url": "https://www.flickr.com/photos/75275041@N00/4103377096"
+ },
+ {
+  "name": "s_sunrise",
+  "title": "Sunrise",
+  "author": "torekhan",
+  "license": "CC BY 2.0",
+  "url": "https://www.flickr.com/photos/44148409@N04/9257472342"
+ },
+ {
+  "name": "p_spin",
+  "title": "Spinning yarn",
+  "author": "kitseeborg",
+  "license": "CC BY-NC-SA 2.0",
+  "url": "https://www.flickr.com/photos/74581113@N00/242672944"
+ },
+ {
+  "name": "c_pattern",
+  "title": "Kazakh pattern",
+  "author": "Francisco Anzola",
+  "license": "CC BY 2.0",
+  "url": "https://www.flickr.com/photos/10345599@N03/48883865748"
+ },
+ {
   "name": "nin_pano",
   "title": "IMG_9653 Almaty, Kazakhstan",
   "author": "Ninara",
@@ -22,11 +50,46 @@
   "url": "https://www.flickr.com/photos/46920115@N03/8100001953"
  },
  {
+  "name": "my_2",
+  "title": "(untitled)",
+  "author": "Mycroyance",
+  "license": "CC BY-NC-SA 2.0",
+  "url": "https://www.flickr.com/photos/91155980@N07/41303798174"
+ },
+ {
+  "name": "p_eagle2",
+  "title": "Kazakh Eagle Hunters by Ron Williams",
+  "author": "cameraclub231",
+  "license": "CC BY 2.0",
+  "url": "https://www.flickr.com/photos/135081788@N03/46815348464"
+ },
+ {
   "name": "undp_saiga",
   "title": "Distant herd of saiga",
   "author": "UNDP in Europe and Central Asia",
   "license": "CC BY-NC-SA 2.0",
   "url": "https://www.flickr.com/photos/46920115@N03/8100007352"
+ },
+ {
+  "name": "s_talas",
+  "title": "Talas River",
+  "author": "upyernoz",
+  "license": "CC BY 2.0",
+  "url": "https://www.flickr.com/photos/48600082269@N01/5550393829"
+ },
+ {
+  "name": "s_apricot",
+  "title": "apricot blossoms",
+  "author": "naturalflow",
+  "license": "CC BY-SA 2.0",
+  "url": "https://www.flickr.com/photos/70693287@N00/4479270934"
+ },
+ {
+  "name": "s_sunrise2",
+  "title": "Sunrise",
+  "author": "chernoburko",
+  "license": "CC BY 2.0",
+  "url": "https://www.flickr.com/photos/153081734@N07/54195073460"
  },
  {
   "name": "az_sunset",
@@ -36,11 +99,74 @@
   "url": "https://www.flickr.com/photos/128934579@N03/15856747565"
  },
  {
-  "name": "live_stars",
-  "title": "Karkara 大本营的星空 / starry night in Karkara base camp",
-  "author": "livepine",
+  "name": "s_before",
+  "title": "Before sunrise",
+  "author": "chernoburko",
   "license": "CC BY 2.0",
-  "url": "https://www.flickr.com/photos/75275041@N00/4103377096"
+  "url": "https://www.flickr.com/photos/153081734@N07/54197184575"
+ },
+ {
+  "name": "undp_crane",
+  "title": "Demoiselle crane in steppe landscape",
+  "author": "UNDP in Europe and Central Asia",
+  "license": "CC BY-NC-SA 2.0",
+  "url": "https://www.flickr.com/photos/46920115@N03/8092196023"
+ },
+ {
+  "name": "up_cold",
+  "title": "Cold Steppe",
+  "author": "upyernoz",
+  "license": "CC BY 2.0",
+  "url": "https://www.flickr.com/photos/upyernoz/4983154024/"
+ },
+ {
+  "name": "s_alatau3",
+  "title": "The beauty of Dzungarian Alatau mountain range",
+  "author": "torekhan",
+  "license": "CC BY 2.0",
+  "url": "https://www.flickr.com/photos/44148409@N04/15120292685"
+ },
+ {
+  "name": "p_eagle",
+  "title": "Anton, the Eagle Hunter",
+  "author": "kitseeborg",
+  "license": "CC BY-NC-SA 2.0",
+  "url": "https://www.flickr.com/photos/74581113@N00/261533233"
+ },
+ {
+  "name": "p_grandma",
+  "title": "Kazakh grandmother w/Polaroid",
+  "author": "bgwarsh",
+  "license": "CC BY-NC-SA 2.0",
+  "url": "https://www.flickr.com/photos/37175615@N00/3971278920"
+ },
+ {
+  "name": "p_nomadfam",
+  "title": "Kazakh-Mongolian nomad family",
+  "author": "kitseeborg",
+  "license": "CC BY-NC-SA 2.0",
+  "url": "https://www.flickr.com/photos/74581113@N00/237662200"
+ },
+ {
+  "name": "p_family",
+  "title": "The Kazakh family",
+  "author": "bgwarsh",
+  "license": "CC BY-NC-SA 2.0",
+  "url": "https://www.flickr.com/photos/37175615@N00/3970923976"
+ },
+ {
+  "name": "ch_int3",
+  "title": "Kazakh Yurt",
+  "author": "chooyutshing",
+  "license": "CC BY-NC-SA 2.0",
+  "url": "https://www.flickr.com/photos/25802865@N08/51653404536"
+ },
+ {
+  "name": "gv_yurt",
+  "title": "A yurt",
+  "author": "Gael Varoquaux",
+  "license": "CC BY 2.0",
+  "url": "https://www.flickr.com/photos/66885349@N03/21169231021"
  },
  {
   "name": "ir_yurt",
@@ -50,6 +176,13 @@
   "url": "https://www.flickr.com/photos/89555776@N00/2612003338"
  },
  {
+  "name": "y_frame2",
+  "title": "Yurt Frame",
+  "author": "fylin",
+  "license": "CC BY-NC-SA 2.0",
+  "url": "https://www.flickr.com/photos/85983202@N00/9200988302"
+ },
+ {
   "name": "ch_int1",
   "title": "Kazakh Yurt",
   "author": "chooyutshing",
@@ -57,11 +190,81 @@
   "url": "https://www.flickr.com/photos/25802865@N08/51651424258"
  },
  {
+  "name": "y_ceilnight",
+  "title": "Yurt ceiling at night",
+  "author": "Ruth and Dave",
+  "license": "CC BY 2.0",
+  "url": "https://www.flickr.com/photos/95142644@N00/31746240483"
+ },
+ {
+  "name": "c_inger",
+  "title": "In the Ger",
+  "author": "neurmadic aesthetic",
+  "license": "CC BY-SA 2.0",
+  "url": "https://www.flickr.com/photos/67935254@N00/4070355982"
+ },
+ {
   "name": "ch_int2",
   "title": "Kazakh Yurt",
   "author": "chooyutshing",
   "license": "CC BY-NC-SA 2.0",
   "url": "https://www.flickr.com/photos/25802865@N08/51654265740"
+ },
+ {
+  "name": "u_tyl4",
+  "title": "P9130269",
+  "author": "t_y_l",
+  "license": "CC BY-SA 2.0",
+  "url": "https://www.flickr.com/photos/46258424@N06/39373898654"
+ },
+ {
+  "name": "p_chris",
+  "title": "kazakh",
+  "author": "chrisdebruyn",
+  "license": "CC BY-NC-SA 2.0",
+  "url": "https://www.flickr.com/photos/41442810@N07/3819962629"
+ },
+ {
+  "name": "a_ast2",
+  "title": "IMG_9102 Astana",
+  "author": "Ninara",
+  "license": "CC BY 2.0",
+  "url": "https://www.flickr.com/photos/37583176@N00/7569549872"
+ },
+ {
+  "name": "c_costume",
+  "title": "(untitled)",
+  "author": "raemin",
+  "license": "CC BY-NC-SA 2.0",
+  "url": "https://www.flickr.com/photos/14124404@N00/5921823678"
+ },
+ {
+  "name": "u_lobby",
+  "title": "Lobby of the National Museum",
+  "author": "Francisco Anzola",
+  "license": "CC BY 2.0",
+  "url": "https://www.flickr.com/photos/10345599@N03/48884402501"
+ },
+ {
+  "name": "u_museum",
+  "title": "National Museum of Kazakhstan",
+  "author": "Francisco Anzola",
+  "license": "CC BY 2.0",
+  "url": "https://www.flickr.com/photos/10345599@N03/48884403431"
+ },
+ {
+  "name": "u_pch1",
+  "title": "National Museum of the Republic of Kazakhstan",
+  "author": "pchgorman",
+  "license": "CC BY-NC-SA 2.0",
+  "url": "https://www.flickr.com/photos/52421717@N00/19365594646"
+ },
+ {
+  "name": "dal_objets",
+  "title": "Objets quotidiens kazakhs (musée Guimet)",
+  "author": "dalbera",
+  "license": "CC BY 2.0",
+  "url": "https://www.flickr.com/photos/dalbera/5361051063/"
  },
  {
   "name": "my_1",

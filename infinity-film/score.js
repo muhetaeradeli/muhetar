@@ -1,4 +1,4 @@
-// ШЕКСІЗДІК ПЕН МӘҢГІЛІК (16:9, 1-minute draft): the single timeline. The narration lines (script.js) and
+// ШЕКСІЗДІК ПЕН МӘҢГІЛІК (16:9, 6 minutes): the single timeline. The narration lines (script.js) and
 // their measured lengths (voice-timing.js, written by tools/build_voice.py) lay out every scene; the music and
 // the picture both read the result, so replacing a voice line re-times the whole film.
 (function () {
@@ -17,36 +17,48 @@
   const clock = makeClock({ bpm: 88, offset: 0 });
   const { T, BEAT, BAR } = clock;
 
-  // per scene: the lead-in before the first line, the tail after the last, and extra holds after a line
+  const TARGET = 360; // six minutes
+
+  // per scene: the lead-in before the first line (the chapter card plays here), the tail after the last,
+  // and extra holds after a line (music-only moments)
   const PLAN = {
-    open: { pre: 4.4, post: 1.0 },
-    steppe: { pre: 1.0, post: 1.6, hold: { d2: 0.8 } },
-    sky: { pre: 1.0, post: 1.0 },
-    yurt: { pre: 0.8, post: 1.0 },
-    ornament: { pre: 0.8, post: 2.2 },
-    end: { pre: 0.8, post: 5.2 },
+    open: { pre: 5.6, post: 0.8, hold: { o2: 0.3 } },
+    steppe: { pre: 2.6, post: 0.8, hold: { d2: 0.5, d6: 0.6 } },
+    sky: { pre: 2.6, post: 0.8, hold: { a5: 0.3, a8: 0.3 } },
+    eternal: { pre: 2.6, post: 0.8 },
+    yurt: { pre: 2.6, post: 0.8, hold: { y6: 0.6 } },
+    ornament: { pre: 2.6, post: 0.8, hold: { r9: 0.3 } },
+    today: { pre: 2.6, post: 0.8 },
+    end: { pre: 1.4, post: 6.6 },
   };
-  const GAP = 0.5;
   const snap = (t) => Math.ceil(t / BEAT - 1e-6) * BEAT; // scenes start on a beat
 
-  let cur = 0;
-  const scenes = {}, lines = [];
-  for (const sc of SCRIPT) {
-    const P = PLAN[sc.scene];
-    const t0 = snap(cur);
-    cur = t0 + P.pre;
-    const ls = [];
-    sc.lines.forEach((l, i) => {
-      const dur = VOT[l.id] || Math.max(2, l.say.length / 14);
-      const line = { id: l.id, text: l.text, scene: sc.scene, t: cur, end: cur + dur, dur };
-      ls.push(line); lines.push(line);
-      cur += dur + ((P.hold && P.hold[l.id]) || 0) + (i < sc.lines.length - 1 ? GAP : 0);
-    });
-    cur += P.post;
-    scenes[sc.scene] = { name: sc.scene, t0, t1: cur, lines: ls };
+  function layout(gap) {
+    let cur = 0;
+    const scenes = {}, lines = [];
+    for (const sc of SCRIPT) {
+      const P = PLAN[sc.scene];
+      const t0 = snap(cur);
+      cur = t0 + P.pre;
+      const ls = [];
+      sc.lines.forEach((l, i) => {
+        const dur = VOT[l.id] || Math.max(2, l.say.length / 14);
+        const line = { id: l.id, text: l.text, scene: sc.scene, t: cur, end: cur + dur, dur };
+        ls.push(line); lines.push(line);
+        cur += dur + ((P.hold && P.hold[l.id]) || 0) + (i < sc.lines.length - 1 ? gap : 0);
+      });
+      cur += P.post;
+      scenes[sc.scene] = { name: sc.scene, title: sc.title, t0, t1: cur, lines: ls };
+    }
+    return { scenes, lines, total: cur };
   }
+  // open the gaps between lines until the film is six minutes long (never tighter than 0.4 s, never looser than 1.1 s)
+  const nGaps = SCRIPT.reduce((a, s) => a + s.lines.length - 1, 0);
+  let GAP = 0.6, LY = layout(GAP);
+  for (let i = 0; i < 6; i++) { GAP = Math.min(1.1, Math.max(0.4, GAP + (TARGET - LY.total) / nGaps)); LY = layout(GAP); }
+  const { scenes, lines } = LY;
   const names = SCRIPT.map((s) => s.scene);
-  const DURATION = Math.ceil(cur);
+  const DURATION = Math.max(Math.ceil(LY.total), 60);
   names.forEach((n, i) => { scenes[n].t1 = i < names.length - 1 ? scenes[names[i + 1]].t0 : DURATION; });
   const S = {}; names.forEach((n) => { S[n] = [scenes[n].t0, scenes[n].t1]; });
   const line = {}; lines.forEach((l) => { line[l.id] = l; });
@@ -71,25 +83,20 @@
     open: { theme: 'S', feel: 'shertpe', level: 0.5 },
     steppe: { theme: 'A', feel: 'gallop', level: 0.62 },
     sky: { theme: 'S', feel: 'shertpe', level: 0.5 },
-    yurt: { theme: 'B', feel: 'shertpe', level: 0.55 },
-    ornament: { theme: 'C', feel: 'tokpe', level: 0.72 },
-    end: { theme: 'A', feel: 'gallop', level: 0.6 },
+    eternal: { theme: 'B', feel: 'shertpe', level: 0.52 },
+    yurt: { theme: 'A', feel: 'gallop', level: 0.55 },
+    ornament: { theme: 'C', feel: 'tokpe', level: 0.66 },
+    today: { theme: 'B', feel: 'gallop', level: 0.6 },
+    end: { theme: 'S', feel: 'shertpe', level: 0.55 },
   };
 
   // ---------- named moments (both the sound and the picture read these) ----------
   const ev = {
-    title: 1.2,                         // the title rises over the steppe
-    horizon: line.d2.t + 1.4,           // the camera crosses the panorama
-    night: line.a1.t + 3.2,             // day turns to night
-    shanyrak: line.y2.t - 0.3,          // the cut to the shanyrak, seen from below
-    band: line.r1.t + 2.6,              // the endless ornament starts to draw itself
-    fin: line.e1.end + 0.9,             // the last chord and the end title
+    title: 1.2,                          // the title rises over the steppe
+    fin: line.e4.end + 1.2,              // the last chord and the end title
   };
-  const markers = {
-    title: { t: ev.title, sync: 'av' },
-    steppe: S.steppe[0], sky: S.sky[0], yurt: S.yurt[0], ornament: S.ornament[0], end: S.end[0],
-    fin: { t: ev.fin, sync: 'av' },
-  };
+  const markers = { title: { t: ev.title, sync: 'av' }, fin: { t: ev.fin, sync: 'av' } };
+  names.forEach((n) => { markers[n] = S[n][0]; });
 
   const SCORE = { FPS, FORMAT, STYLE, W, H, SAFE, DURATION, clock, T, BEAT, BAR, S, m, names, scenes, lines, line, sceneAt, subtitles, MOOD, ev, markers, gap: GAP };
   if (node) module.exports = SCORE; else globalThis.SCORE = SCORE;

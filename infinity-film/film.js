@@ -1,11 +1,11 @@
-// THE FILM: six scenes cut on the score's timeline, finished like cinema: 2.35:1 letterbox,
+// THE FILM: eight chapters cut on the score's timeline, finished like cinema: 2.35:1 letterbox,
 // dissolves and dips to black between chapters, a vignette, film grain, subtitles in the lower bar.
 (function () {
   const G = globalThis.G, K = globalThis.K, SC = globalThis.SCORE, Studio = globalThis.Studio, SCENES = globalThis.SCENES;
   const { S, names, ev } = SC;
   const W = G.W, H = G.H;
   // how each scene arrives: 'dip' = through black, 'fade' = a dissolve, 'cut'
-  const IN = { open: 'dip', steppe: 'fade', sky: 'fade', yurt: 'fade', ornament: 'fade', end: 'fade' };
+  const IN = { open: 'dip', steppe: 'fade', sky: 'fade', eternal: 'fade', yurt: 'fade', ornament: 'fade', today: 'fade', end: 'fade' };
   const XFADE = 1.4; // every chapter dissolves into the next
   const DIP = 0.45;
   Studio.film({

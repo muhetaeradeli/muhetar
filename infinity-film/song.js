@@ -2,7 +2,7 @@
 //   node song.js      (STEMS=1 writes stems, LUFS=-14 sets the loudness)
 // Every scene has a mood in score.js: 'shertpe' (plucked, lyrical), 'gallop' (the horse-step strum) or
 // 'tokpe' (full strumming). The melody sits on the upper string and the lower string drones, as on a real
-// dombra. The music ducks under the voice and comes forward in the pauses.
+// dombra. The music ducks under the voice and comes forward in the pauses; the balance is voice 60 % / music 40 %.
 const path = require('path');
 const fs = require('fs');
 const { SR, Bus, reverb } = require('./engine/audio/dsp');
@@ -88,10 +88,8 @@ const ring = (t, off, gain, dur = 2.2) => { const a = string(G3 + off, dur, 0.5,
 fx.addMono(I.noiseSweep(1.4, 300, 4000, { q: 0.8 }), Math.max(0, ev.title - 1.2), 0.04);
 drum.addMono(I.timpani(31, { decay: 1.6 }), ev.title, 0.55);
 [0, 7, 12].forEach((o) => stroke(ev.title, o, { gain: 1.0, dur: 1.6 }));
-// day turns to night; the shanyrak appears; the endless band begins
-[12, 7, 3, 0].forEach((o, i) => ring(ev.night + i * 0.22, o, 0.32, 1.8));
-ring(ev.shanyrak, 12, 0.4, 2.4); ring(ev.shanyrak + 0.3, 7, 0.28, 2);
-fx.addMono(I.woodTick(1.2), ev.band, 0.3);
+// a bell-like pluck where each chapter's title appears
+for (const n of names.slice(1)) { ring(S[n][0] + 0.25, 12, 0.3, 2.2); ring(S[n][0] + 0.55, 7, 0.22, 1.8); }
 
 // ---------- the last chord ----------
 [0, 7, 12].forEach((o, i) => stroke(ev.fin + i * 0.02, o, { gain: 1.1, dur: 3.5 }));
@@ -129,11 +127,26 @@ const music = [dombra, drone, drum, verb, own];
 MIX.duck(music, voice, { depth: 0.55, attack: 0.03, release: 0.6, threshold: 0.015 });
 const room = reverb(verb, { room: 0.8, damp: 0.35 });
 
-const stems = { dombra, drone, drum, fx, voice, voiceRoom, room, own };
-const GAIN = { dombra: 1.7, drone: 3.5, drum: 0.9, fx: 1, voice: 2.3, voiceRoom: 0.12, room: 0.5, own: 2.3 };
-const mix = MIX.mixdown(stems, GAIN, { stemDir: process.env.STEMS ? path.join(__dirname, 'out') : null });
-MIX.highpass(mix, 28);
-MIX.fadeOut(mix, DURATION - 2.5, DURATION - 0.1);
-const res = MIX.master(mix, 0.8, undefined, { lufs: process.env.LUFS ? +process.env.LUFS : -14 });
+// ---------- the balance: the voice is 60 %, the music and every other sound 40 % ----------
+// Measured as loudness (LUFS, EBU R128): the music bed sits 20·log10(40/60) = −3.5 dB under the voice.
+// The voice is levelled first (gentle compression), the mix is brought to -16 LUFS by one gain and a peak
+// limiter. out/voice.wav and out/bed.wav are written at the same gain, before the limiter: put your own music
+// in place of bed.wav at the same level and the balance stays 60 / 40.
+const VOICE_SHARE = 0.6, TARGET = -16;
+const vox = MIX.mixdown({ voice, voiceRoom }, { voice: 2.3, voiceRoom: 0.12 });
+const bed = MIX.mixdown({ dombra, drone, drum, fx, room, own }, { dombra: 1.7, drone: 3.5, drum: 0.4, fx: 0.6, room: 0.5, own: 2.3 });
+MIX.highpass(vox, 60); MIX.highpass(bed, 28);
+MIX.master(vox, 1, 0.8, { lufs: -19 });                       // level the narration
+MIX.master(bed, 1, 0.6, { lufs: -24 });                       // level the music (no sudden peaks)
+const Lv = MIX.lufs(vox), Lb0 = MIX.lufs(bed), want = Lv + 20 * Math.log10((1 - VOICE_SHARE) / VOICE_SHARE);
+bed.applyGain(() => Math.pow(10, (want - Lb0) / 20));
+for (const b of [vox, bed]) MIX.fadeOut(b, DURATION - 2.5, DURATION - 0.1);
+const mix = MIX.mixdown({ vox, bed }, {});
+const g = Math.pow(10, (TARGET - MIX.lufs(mix)) / 20);
+for (const b of [vox, bed, mix]) b.applyGain(() => g);
+MIX.master(mix, 1, 0.89, { lufs: TARGET });                    // only catches the peaks
 MIX.writeWav(path.join(__dirname, 'out', 'music.wav'), mix);
-console.log(`out/music.wav  ${DURATION.toFixed(1)}s  ${res.lufs.toFixed(1)} LUFS`);
+MIX.writeWav(path.join(__dirname, 'out', 'voice.wav'), vox);
+MIX.writeWav(path.join(__dirname, 'out', 'bed.wav'), bed);
+const lv = MIX.lufs(vox), lb = MIX.lufs(bed), av = Math.pow(10, lv / 20), ab = Math.pow(10, lb / 20);
+console.log(`out/music.wav  ${DURATION.toFixed(1)}s  ${MIX.lufs(mix).toFixed(1)} LUFS  ·  voice ${lv.toFixed(1)} LUFS, music ${lb.toFixed(1)} LUFS  ·  voice ${(100 * av / (av + ab)).toFixed(0)} % / music ${(100 * ab / (av + ab)).toFixed(0)} %`);
