@@ -22,14 +22,15 @@
   // per scene: the lead-in before the first line (the chapter card plays here), the tail after the last,
   // and extra holds after a line (music-only moments)
   const PLAN = {
-    open: { pre: 5.6, post: 0.8, hold: { o2: 0.3 } },
-    steppe: { pre: 2.6, post: 0.8, hold: { d2: 0.5, d6: 0.6 } },
-    sky: { pre: 2.6, post: 0.8, hold: { a5: 0.3, a8: 0.3 } },
-    eternal: { pre: 2.6, post: 0.8 },
-    yurt: { pre: 2.6, post: 0.8, hold: { y6: 0.6 } },
-    ornament: { pre: 2.6, post: 0.8, hold: { r9: 0.3 } },
-    today: { pre: 2.6, post: 0.8 },
-    end: { pre: 1.4, post: 6.6 },
+    open: { pre: 5.6, post: 0.6 },
+    steppe: { pre: 2.2, post: 0.6 },
+    eternal: { pre: 2.2, post: 0.6 },
+    sky: { pre: 2.2, post: 0.6 },
+    yurt: { pre: 2.2, post: 0.6 },
+    ornament: { pre: 2.2, post: 0.6 },
+    timespace: { pre: 2.2, post: 0.6 },
+    today: { pre: 2.2, post: 0.6 },
+    end: { pre: 1.6, post: 6.0 },
   };
   const snap = (t) => Math.ceil(t / BEAT - 1e-6) * BEAT; // scenes start on a beat
 
@@ -82,18 +83,19 @@
   const MOOD = {
     open: { theme: 'S', feel: 'shertpe', level: 0.5 },
     steppe: { theme: 'A', feel: 'gallop', level: 0.62 },
-    sky: { theme: 'S', feel: 'shertpe', level: 0.5 },
     eternal: { theme: 'B', feel: 'shertpe', level: 0.52 },
+    sky: { theme: 'S', feel: 'shertpe', level: 0.5 },
     yurt: { theme: 'A', feel: 'gallop', level: 0.55 },
     ornament: { theme: 'C', feel: 'tokpe', level: 0.66 },
+    timespace: { theme: 'S', feel: 'shertpe', level: 0.52 },
     today: { theme: 'B', feel: 'gallop', level: 0.6 },
-    end: { theme: 'S', feel: 'shertpe', level: 0.55 },
+    end: { theme: 'A', feel: 'shertpe', level: 0.55 },
   };
 
   // ---------- named moments (both the sound and the picture read these) ----------
   const ev = {
     title: 1.2,                          // the title rises over the steppe
-    fin: line.e4.end + 1.2,              // the last chord and the end title
+    fin: lines[lines.length - 1].end + 1.2, // the last chord and the end title
   };
   const markers = { title: { t: ev.title, sync: 'av' }, fin: { t: ev.fin, sync: 'av' } };
   names.forEach((n) => { markers[n] = S[n][0]; });

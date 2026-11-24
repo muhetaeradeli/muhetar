@@ -24,7 +24,7 @@ def para(text, bold=False, align=WD_ALIGN_PARAGRAPH.JUSTIFY, indent=True, size=1
 C = WD_ALIGN_PARAGRAPH.CENTER
 para('ШЕКСІЗДІК ПЕН МӘҢГІЛІК', True, C, False, 16)
 para('Қазақтың дәстүрлі қолөнеріндегі идея', False, C, False, 14, italic=True)
-para('Дикторлық мәтін (6 минуттық видеоға)', False, C, False, 12, after=10, color=(110, 110, 110))
+para('Дикторлық мәтін (6 минуттық видеоға): мәтіннің өз сөйлемдері, өзгеріссіз және мәтіндегі ретімен; тақырыптар — мәтіннің өз тақырыптары', False, C, False, 12, after=10, color=(110, 110, 110))
 for sc in script:
     para(sc['title'], True, WD_ALIGN_PARAGRAPH.LEFT, True, 14, before=6)
     para(' '.join(l['text'] for l in sc['lines']))
