@@ -2,9 +2,10 @@
 """Copy the film's photographs into assets/ and write assets/credits.js.
    python3 tools/import_photos.py <folder>
 The folder holds <name>.jpg files and a meta.json {name: {title, creator, license, page}} (as written by the
-download step). Photos are upscaled to 2048 px wide (Lanczos + a light sharpen) so the Ken Burns moves stay
-crisp, and every photo used is credited on the end card. A photo that is missing is left out, and the film
-paints that shot instead."""
+download step). The photos in it are expected to be upscaled already (Real-ESRGAN, tools/upscale.py), so they
+stay sharp on a big screen; here they are only fitted to at most 2880 px wide. Every Flickr photo used is
+credited on the end card (a photo whose licence is '—' was supplied with the text and is not listed).
+A photo that is missing is left out, and the film paints that shot instead."""
 import json, os, subprocess, sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # the photographs the film uses, in order of appearance
@@ -13,7 +14,7 @@ CHOSEN = [
     'nin_pano', 'undp_saiga', 'p_eagle2', 's_talas',                                                                        # шексіздік (дала)
     's_alatau3', 'p_family', 'p_spin', 'p_nomadfam',                                                                         # мәңгілік
     'undp_crane', 'up_cold',                                                                                                 # циклдік уақыт
-    'gv_yurt', 'ir_yurt', 'c_inger', 'y_ceilnight', 'y_frame2',                                                              # кеңістік, киіз үй
+    'gv_yurt', 'ir_yurt', 'user_shanyrak', 'c_inger', 'y_frame2',                                                            # кеңістік, киіз үй
     'ch_int2',                                                                                                               # ою-өрнек
     'az_sunset', 'ch_int1',                                                                                                  # уақыт пен кеңістік
     'a_ast2', 'u_museum',                                                                                                    # этнодизайн
@@ -26,8 +27,9 @@ credits = []
 for name in CHOSEN:
     a, b = os.path.join(src, name + '.jpg'), os.path.join(ROOT, 'assets', name + '.jpg')
     if not os.path.exists(a) or name not in meta: print('missing', name); continue
-    subprocess.check_call(['ffmpeg', '-v', 'error', '-y', '-i', a, '-vf', 'scale=2048:-2:flags=lanczos,unsharp=5:5:0.6', '-q:v', '2', b])
+    subprocess.check_call(['ffmpeg', '-v', 'error', '-y', '-i', a, '-vf', "scale='min(2880,iw)':-2:flags=lanczos", '-q:v', '2', b])
     m = meta[name]
+    if m['license'] == '—': continue
     lic = m['license'].strip().upper().replace('CC0', 'CC0 ').replace('BY', 'CC BY', 1) if not m['license'].lower().startswith('cc0') else 'CC0'
     credits.append({'name': name, 'title': m['title'] or '(untitled)', 'author': m['creator'], 'license': lic.replace('  ', ' ').strip(), 'url': m['page']})
 open(os.path.join(ROOT, 'assets', 'credits.js'), 'w').write(

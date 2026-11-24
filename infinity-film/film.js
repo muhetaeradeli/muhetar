@@ -28,7 +28,7 @@
       if (next && IN[next] === 'dip') dark = Math.max(dark, K.u(t, t1 - DIP, t1));
       if (t < 0.8) dark = Math.max(dark, 1 - t / 0.8);
       if (dark > 0) { ctx.fillStyle = `rgba(0,0,0,${dark})`; ctx.fillRect(0, 0, W, H); }
-      K.finish(ctx, t, SC.subtitles, { vignette: 0.45 });
+      K.finish(ctx, t, SC.subtitles, { vignette: 0.45, grainA: 0.05 });
       void ev;
     },
   });

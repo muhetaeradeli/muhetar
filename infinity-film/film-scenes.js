@@ -296,11 +296,11 @@
   const YURT = shots('yurt', [
     { img: 'gv_yurt', mv: mv('in', 0.55, 0.55) },
     { at: 'y1', word: 'әлемнің', img: 'ir_yurt', mv: [{ zoom: 1.1, x: 0.5, y: 0.56 }, { zoom: 1.24, x: 0.48, y: 0.52 }], lead: 0.3 },
-    { at: 'y2', img: 'c_inger', mv: [{ zoom: 1.15, x: 0.48, y: 0.5 }, { zoom: 1.7, x: 0.47, y: 0.3 }], draw: (c, t) => {
-      K.glow(c, CX, VIEW.y + 120, 620, 'rgba(255,240,210,0.4)', K.io(t, at('y2', 'аспанмен') - 0.5, L.y2.end + 0.6));
+    { at: 'y2', img: 'user_shanyrak', mv: [{ zoom: 1.12, x: 0.52, y: 0.5 }, { zoom: 1.55, x: 0.6, y: 0.42 }], rot: 0.02, draw: (c, t) => {
+      K.glow(c, CX, CY - 20, 460, 'rgba(255,246,225,0.35)', K.io(t, at('y2', 'аспанмен') - 0.5, L.y2.end + 0.6)); // the sky through the crown
       K.label(c, t, L.y2.t + 0.4, L.y3.t - 0.3, 'Шаңырақ', 'кеңістіктің жоғары бөлігі', { right: true });
     } },
-    { at: 'y3', img: 'y_ceilnight', mv: [{ zoom: 1.15, x: 0.5, y: 0.45 }, { zoom: 1.3, x: 0.5, y: 0.45 }], rot: 0.05, draw: (c, t) => K.label(c, t, L.y3.t + 0.4, L.y4.t - 0.3, 'Уықтар', 'орталықтан жан-жаққа') },
+    { at: 'y3', img: 'c_inger', mv: [{ zoom: 1.2, x: 0.48, y: 0.45 }, { zoom: 1.45, x: 0.47, y: 0.32 }], rot: 0.04, draw: (c, t) => K.label(c, t, L.y3.t + 0.4, L.y4.t - 0.3, 'Уықтар', 'орталықтан жан-жаққа') },
     { at: 'y4', img: 'y_frame2', mv: mv('out', 0.5, 0.45), draw: (c, t) => {
       const u = K.io(t, at('y4', 'дөңгелек'), L.y4.end + 0.3), pts = [];
       for (let i = 0; i <= 140; i++) { const an = -Math.PI / 2 + i / 140 * Math.PI * 2; pts.push([CX + Math.cos(an) * 320, CY + Math.sin(an) * 320]); }
