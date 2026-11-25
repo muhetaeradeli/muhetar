@@ -51,7 +51,7 @@
     const people = [...new Set((globalThis.CREDITS || []).filter((x) => x.license !== '—').map((x) => x.author.replace(/\s*\(.*$/, '')))];
     const lines = ['Мәтін: «Қазақтың дәстүрлі қолөнеріндегі шексіздік пен мәңгілік идеясы»'];
     let cur = 'Фото:'; for (const p of people) { if ((cur + ' · ' + p).length > 118) { lines.push(cur); cur = p; } else cur += (cur.endsWith(':') ? ' ' : ' · ') + p; }
-    lines.push(cur, 'Flickr · CC BY / BY-SA / BY-NC / BY-NC-SA', 'Дауыс: ISSAI KazakhTTS (синтез) · Музыка: домбыраға арналған түпнұсқа күй');
+    lines.push(cur, 'Flickr · CC BY / BY-SA / BY-NC / BY-NC-SA');
     lines.forEach((s, i) => K.text(c, s, CX, 430 + i * 34, { size: i === 0 ? 22 : 18, weight: 400, color: 'rgba(243,234,210,0.86)', alpha: uu(t, ev.fin + 0.8 + i * 0.15, ev.fin + 1.6 + i * 0.15) }));
   };
 
@@ -103,6 +103,13 @@
     drawShot(ctx, t, shots[i - 1]);
     const b = sbuf(); drawShot(b.getContext('2d'), t, s);
     ctx.save(); ctx.globalAlpha = ease.inOutQuad(a); ctx.drawImage(b, 0, 0, W, HH); ctx.restore();
+    // a warm light leak washes across the frame while one photograph dissolves into the next
+    if (s.img && shots[i - 1].img) {
+      const k = Math.sin(Math.PI * a), h = (i * 0.618) % 1, x = W * (0.1 + 0.8 * h) + (a - 0.5) * 500, y = TOP + (BOT - TOP) * (h > 0.5 ? 0.25 : 0.7);
+      ctx.save(); ctx.globalCompositeOperation = 'screen';
+      ctx.fillStyle = K.radial(ctx, x, y, 0, 900, [[0, `rgba(255,190,110,${0.2 * k})`], [0.45, `rgba(255,130,70,${0.08 * k})`], [1, 'rgba(0,0,0,0)']]); ctx.fillRect(0, 0, W, HH);
+      ctx.restore();
+    }
   };
   globalThis.FILM_SHOTS = shots;
 })();

@@ -433,5 +433,299 @@
   "author": "fylin",
   "license": "CC BY-NC-SA 2.0",
   "url": "https://www.flickr.com/photos/85983202@N00/9200988302"
+ },
+ {
+  "name": "n2_shyrdak",
+  "title": "Kyrgyzstan, shyrdak",
+  "author": "kalpaktravel",
+  "license": "CC BY 2.0",
+  "url": "https://www.flickr.com/photos/147403441@N04/48215466926"
+ },
+ {
+  "name": "n2_shyrdak2",
+  "title": "Kyrgyz design felt rugs",
+  "author": "surrealpenguin",
+  "license": "CC BY-SA 2.0",
+  "url": "https://www.flickr.com/photos/85254122@N00/4427854878"
+ },
+ {
+  "name": "n2_yint1",
+  "title": "Mongolian Ger (Yurt) Interior",
+  "author": "Gary Lee Todd, Ph.D.",
+  "license": "CC0",
+  "url": "https://www.flickr.com/photos/101561334@N08/25073661538"
+ },
+ {
+  "name": "n2_yint2",
+  "title": "2-Yurt Interior",
+  "author": "upyernoz",
+  "license": "CC BY 2.0",
+  "url": "https://www.flickr.com/photos/48600082269@N01/4639219174"
+ },
+ {
+  "name": "n2_yint3",
+  "title": "Kazakh Yurt",
+  "author": "chooyutshing",
+  "license": "CC BY-NC-SA 2.0",
+  "url": "https://www.flickr.com/photos/25802865@N08/51635738392"
+ },
+ {
+  "name": "n2_uyk",
+  "title": "Kazakh Yurt",
+  "author": "chooyutshing",
+  "license": "CC BY-NC-SA 2.0",
+  "url": "https://www.flickr.com/photos/25802865@N08/51635739162"
+ },
+ {
+  "name": "n2_yint4",
+  "title": "Anton, the Eagle Hunter",
+  "author": "kitseeborg",
+  "license": "CC BY-NC-SA 2.0",
+  "url": "https://www.flickr.com/photos/74581113@N00/261533242"
+ },
+ {
+  "name": "n2_eagle",
+  "title": "MONGOLIA",
+  "author": "yenieksen",
+  "license": "CC BY-SA 2.0",
+  "url": "https://www.flickr.com/photos/127544265@N05/14987477740"
+ },
+ {
+  "name": "n2_eagle2",
+  "title": "Mongolia",
+  "author": "yenieksen",
+  "license": "CC BY-SA 2.0",
+  "url": "https://www.flickr.com/photos/127544265@N05/15174156255"
+ },
+ {
+  "name": "n2_horsesdrink",
+  "title": "Horses drinking from a natural spring, Almaty region, Kazakhstan",
+  "author": "Global Environment Facility (GEF)",
+  "license": "CC BY-NC-SA 2.0",
+  "url": "https://www.flickr.com/photos/40412379@N02/28075891371"
+ },
+ {
+  "name": "n2_herd",
+  "title": "Mongolia - Mongolei",
+  "author": "Daniela Hartmann (alles-schlumpf)",
+  "license": "CC BY-NC-SA 2.0",
+  "url": "https://www.flickr.com/photos/29487767@N02/10173885045"
+ },
+ {
+  "name": "n2_jailau",
+  "title": "20160511_China_6313 Pano Nanshan sRGB",
+  "author": "Dan Lundberg",
+  "license": "CC BY-SA 2.0",
+  "url": "https://www.flickr.com/photos/9508280@N07/29911275551"
+ },
+ {
+  "name": "n2_jailau2",
+  "title": "The beauty of Dzungarian Alatau mountain range",
+  "author": "torekhan",
+  "license": "CC BY 2.0",
+  "url": "https://www.flickr.com/photos/44148409@N04/15119921822"
+ },
+ {
+  "name": "n2_argali",
+  "title": "Applique de vêtement kazakh (musée Guimet)",
+  "author": "dalbera",
+  "license": "CC BY 2.0",
+  "url": "https://www.flickr.com/photos/72746018@N00/5361214101"
+ },
+ {
+  "name": "n2_feltcarry",
+  "title": "getting on the camel",
+  "author": "Esthr",
+  "license": "CC BY-NC 2.0",
+  "url": "https://www.flickr.com/photos/30866445@N00/450156712"
+ },
+ {
+  "name": "n2_winterchild",
+  "title": "Mongolia November 2015 (4 of 44)",
+  "author": "aminah.brunt",
+  "license": "CC BY-NC 2.0",
+  "url": "https://www.flickr.com/photos/127555840@N03/25822846453"
+ },
+ {
+  "name": "n2_camelsnow",
+  "title": "Mongolia November 2015 (22 of 44)",
+  "author": "aminah.brunt",
+  "license": "CC BY-NC 2.0",
+  "url": "https://www.flickr.com/photos/127555840@N03/26359622831"
+ },
+ {
+  "name": "n2_horse",
+  "title": "Horses in the park",
+  "author": "Irene2005",
+  "license": "CC BY 2.0",
+  "url": "https://www.flickr.com/photos/89555776@N00/2616547593"
+ },
+ {
+  "name": "n2_dombra",
+  "title": "Playing dombra",
+  "author": "harunire",
+  "license": "CC BY-NC-SA 2.0",
+  "url": "https://www.flickr.com/photos/14542551@N00/207053158"
+ },
+ {
+  "name": "n2_milky",
+  "title": "Charlie, the Milky Way, and three satellites!",
+  "author": "Neil Melville-Kenney",
+  "license": "CC BY-NC-SA 2.0",
+  "url": "https://www.flickr.com/photos/27774670@N07/8558521037"
+ },
+ {
+  "name": "n2_dusk",
+  "title": "Desert sunset",
+  "author": "Martin Lopatka",
+  "license": "CC BY-SA 2.0",
+  "url": "https://www.flickr.com/photos/88654826@N00/5997589786"
+ },
+ {
+  "name": "n2_mist",
+  "title": "Is it night yet?",
+  "author": "upyernoz",
+  "license": "CC BY 2.0",
+  "url": "https://www.flickr.com/photos/48600082269@N01/4982556313"
+ },
+ {
+  "name": "n2_charyn",
+  "title": "Charyn Canyon",
+  "author": "peretzp",
+  "license": "CC BY-SA 2.0",
+  "url": "https://www.flickr.com/photos/68877611@N00/3991846867"
+ },
+ {
+  "name": "n2_hunters",
+  "title": "Posse of Hunters",
+  "author": "Illustrated in Blue",
+  "license": "CC BY 2.0",
+  "url": "https://www.flickr.com/photos/31175208@N03/22073801650"
+ },
+ {
+  "name": "n2_yurtdesert",
+  "title": "Urgench UZ - Jurte with Ayaz Kala 01",
+  "author": "Daniel Mennerich",
+  "license": "CC BY-NC-SA 2.0",
+  "url": "https://www.flickr.com/photos/29858421@N04/37850873874"
+ },
+ {
+  "name": "n2_rugwoman",
+  "title": "Life in a Turkish Nomad Tent at Ancient City Diocaesarea of Olba",
+  "author": "voyageAnatolia.blogspot.com",
+  "license": "CC BY-NC-SA 2.0",
+  "url": "https://www.flickr.com/photos/10362153@N03/2765024890"
+ },
+ {
+  "name": "n2_yurtmtn",
+  "title": "Yurt at Base Camp",
+  "author": "twiga269 ॐ FEMEN",
+  "license": "CC BY-NC 2.0",
+  "url": "https://www.flickr.com/photos/24257706@N07/5574052478"
+ },
+ {
+  "name": "n2_yurtmtn2",
+  "title": "a Yurt at Base Camp",
+  "author": "twiga269 ॐ FEMEN",
+  "license": "CC BY-NC 2.0",
+  "url": "https://www.flickr.com/photos/24257706@N07/4980623928"
+ },
+ {
+  "name": "n2_build",
+  "title": "Carving sticks for making felt",
+  "author": "kitseeborg",
+  "license": "CC BY-NC-SA 2.0",
+  "url": "https://www.flickr.com/photos/74581113@N00/244994794"
+ },
+ {
+  "name": "n2_shanband",
+  "title": "Inside a Yurt : details of the wall",
+  "author": "twiga269 ॐ FEMEN",
+  "license": "CC BY-NC 2.0",
+  "url": "https://www.flickr.com/photos/24257706@N07/4980020049"
+ },
+ {
+  "name": "n2_yurtband",
+  "title": "details of a Yurt at Base Camp",
+  "author": "twiga269 ॐ FEMEN",
+  "license": "CC BY-NC 2.0",
+  "url": "https://www.flickr.com/photos/24257706@N07/4980010031"
+ },
+ {
+  "name": "n2_uykred",
+  "title": "Inside a Yurt: details of the wall",
+  "author": "twiga269 ॐ FEMEN",
+  "license": "CC BY-NC 2.0",
+  "url": "https://www.flickr.com/photos/24257706@N07/4980024269"
+ },
+ {
+  "name": "n2_shanlight",
+  "title": "Inside a Yurt: the Roof",
+  "author": "twiga269 ॐ FEMEN",
+  "license": "CC BY-NC 2.0",
+  "url": "https://www.flickr.com/photos/24257706@N07/4980629382"
+ },
+ {
+  "name": "n2_tulip",
+  "title": "Tulips are part of Kazakhstan's rich history",
+  "author": "UNDP in Europe and Central Asia",
+  "license": "CC BY-NC-SA 2.0",
+  "url": "https://www.flickr.com/photos/46920115@N03/5815528626"
+ },
+ {
+  "name": "n2_tulip2",
+  "title": "Tulips are part of Kazakhstan's rich history",
+  "author": "UNDP in Europe and Central Asia",
+  "license": "CC BY-NC-SA 2.0",
+  "url": "https://www.flickr.com/photos/46920115@N03/5814966099"
+ },
+ {
+  "name": "n2_textile",
+  "title": "Khalima",
+  "author": "Princeton Public Library, NJ",
+  "license": "CC BY-NC 2.0",
+  "url": "https://www.flickr.com/photos/95777434@N00/26225687121"
+ },
+ {
+  "name": "n2_yurtforest",
+  "title": "Kazhak Yurt on the Banks of Tian Chi",
+  "author": "tsc_traveler",
+  "license": "CC BY 2.0",
+  "url": "https://www.flickr.com/photos/20124252@N00/68695823"
+ },
+ {
+  "name": "y_ceilnight",
+  "title": "Yurt ceiling at night",
+  "author": "Ruth and Dave",
+  "license": "CC BY 2.0",
+  "url": "https://www.flickr.com/photos/95142644@N00/31746240483"
+ },
+ {
+  "name": "y_frame",
+  "title": "frame of yurt",
+  "author": "van_mij",
+  "license": "CC BY-SA 2.0",
+  "url": "https://www.flickr.com/photos/84645678@N00/443510338"
+ },
+ {
+  "name": "dal_applique",
+  "title": "Applique de vêtement kazakh (musée Guimet)",
+  "author": "dalbera",
+  "license": "CC BY 2.0",
+  "url": "https://www.flickr.com/photos/dalbera/5361665450/"
+ },
+ {
+  "name": "hicks_horses",
+  "title": "Horses in the Pond",
+  "author": "MrHicks46",
+  "license": "CC BY-SA 2.0",
+  "url": "https://www.flickr.com/photos/14868775@N07/9045529718"
+ },
+ {
+  "name": "n_winter2",
+  "title": "and then winter came (III)",
+  "author": "Emilia Tjernström [Arriving at the horizon]",
+  "license": "CC BY-NC-SA 2.0",
+  "url": "https://www.flickr.com/photos/60614633@N00/244494757"
  }
 ]; if (typeof module !== 'undefined') module.exports = CREDITS; else globalThis.CREDITS = CREDITS; })();

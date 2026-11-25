@@ -18,6 +18,8 @@ CHOSEN = [  # every photograph the film shows (film-plan.js)
     's_alatau3', 's_apricot', 's_before', 's_eagle', 's_sunrise', 's_sunrise2', 's_talas', 'u_lobby', 'u_museum',
     'u_pch1', 'u_tyl4', 'undp_altyn', 'undp_crane', 'undp_saiga', 'up_silky', 'up_yurts', 'user_shanyrak',
     'y_frame2',
+    # the second search: felt, yurt interiors, shanyrak and uyks, pastures, eagle hunters, night sky
+    'n2_shyrdak', 'n2_shyrdak2', 'n2_yint1', 'n2_yint2', 'n2_yint3', 'n2_uyk', 'n2_yint4', 'n2_eagle', 'n2_eagle2', 'n2_horsesdrink', 'n2_herd', 'n2_jailau', 'n2_jailau2', 'n2_argali', 'n2_feltcarry', 'n2_winterchild', 'n2_camelsnow', 'n2_horse', 'n2_dombra', 'n2_milky', 'n2_dusk', 'n2_mist', 'n2_charyn', 'n2_hunters', 'n2_yurtdesert', 'n2_rugwoman', 'n2_yurtmtn', 'n2_yurtmtn2', 'n2_build', 'n2_shanband', 'n2_yurtband', 'n2_uykred', 'n2_shanlight', 'n2_tulip', 'n2_tulip2', 'n2_textile', 'n2_yurtforest', 'y_ceilnight', 'y_frame', 'dal_applique', 'hicks_horses', 'n_winter2',
 ]
 src = sys.argv[1]                                   # the originals and their meta.json
 up = sys.argv[2] if len(sys.argv) > 2 else src       # the upscaled versions (tools/upscale.py), used when present

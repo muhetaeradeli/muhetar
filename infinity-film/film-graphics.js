@@ -33,10 +33,13 @@
 
   // ---------- backgrounds ----------
   // the felt «stage»: a carpet pattern, blurred and darkened, behind gold drawings
-  BG.stage = (c, t, sh, img = 'c_pattern') => {
-    const b = H_.blurred(img, 8);
+  const STAGE = ['c_pattern', 'n2_shyrdak', 'n2_shyrdak2', 'n2_shanband', 'n2_yurtband', 'n2_textile', 'n2_yint3'];
+  const pick = (id) => { let h = 7; for (const ch of String(id || '')) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return STAGE[h % STAGE.length]; };
+  BG.stage = (c, t, sh, img) => {
+    img = img || (IMG[pick(sh.id)] ? pick(sh.id) : 'c_pattern');
+    const b = H_.blurred(img, 5);
     if (b) G.kenBurns(c, b, 0, TOP, W, VIEW.h, t, sh.start - 2, sh.end + 2, { from: { zoom: 1.2, x: 0.45, y: 0.5 }, to: { zoom: 1.35, x: 0.55, y: 0.5 } });
-    c.fillStyle = 'rgba(8,18,52,0.86)'; c.fillRect(0, 0, W, H);
+    c.fillStyle = 'rgba(8,16,44,0.8)'; c.fillRect(0, 0, W, H);
     c.fillStyle = K.radial(c, CX, CY, 60, 820, [[0, 'rgba(255,200,120,0.13)'], [1, 'rgba(0,0,0,0)']]); c.fillRect(0, 0, W, H);
   };
   BG.paper = (c) => {
