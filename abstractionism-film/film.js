@@ -15,11 +15,15 @@
       const n = SC.sceneAt(t), i = names.indexOf(n), [t0, t1] = S[n];
       const draw = (name) => { ctx.save(); ctx.beginPath(); ctx.rect(0, K.BAR, W, H - 2 * K.BAR); ctx.clip(); (SCENES[name] || (() => {}))(ctx, t); ctx.restore(); };
       const how = IN[n];
+      K.resetLabels();
       if (how === 'fade' && t < t0 + 0.9 && i > 0) {
-        draw(names[i - 1]);
-        const b = K.offscreen((x) => (SCENES[n] || (() => {}))(x, t));
-        ctx.save(); ctx.globalAlpha = K.io(t, t0, t0 + 0.9); ctx.drawImage(b, 0, 0, W, H); ctx.restore();
+        const a = K.io(t, t0, t0 + 0.9);
+        K.withMul(1 - a, () => draw(names[i - 1]));
+        let b; K.withMul(a, () => { b = K.offscreen((x) => (SCENES[n] || (() => {}))(x, t)); });
+        ctx.save(); ctx.globalAlpha = a; ctx.drawImage(b, 0, 0, W, H); ctx.restore();
       } else draw(n);
+      // every painting on screen gets its title and artist
+      K.drawLabels(ctx);
       // dips to black around the chapter cuts
       let dark = 0;
       if (how === 'dip') dark = Math.max(dark, 1 - K.u(t, t0, t0 + DIP));

@@ -306,7 +306,7 @@
         c.fillStyle = K.grad(c, 0, 0, W, H, [[0, '#0A1A52'], [1, '#07102E']]); c.fillRect(0, 0, W, H);
         K.paper(c, 'rgba(0,0,0,0)', 'rgba(255,255,255,0.035)');
         K.cam(c, { zoom: 1 + 0.05 * K.u(t, l3.t, t1), ...K.drift(t, 2, 93) }, () => {
-          if (K.has('swan')) K.framed(c, K.IMG.swan, 1520, 520, 560, { frame: 14 }); else K.shanyrak(c, 1560, 520, 330, 'rgba(226,182,89,0.7)', 5, t * 0.05, false);
+          if (K.has('swan')) K.framed(c, K.IMG.swan, 1520, 470, 500, { frame: 14 }); else K.shanyrak(c, 1560, 520, 330, 'rgba(226,182,89,0.7)', 5, t * 0.05, false);
           const d = l3.dur;
           K.text(c, 'Абстрактілі картинаны', 190, 380, { size: 34, weight: 400, align: 'left', color: '#C9D4F2', alpha: K.u(t, l3.t, l3.t + 0.6) });
           K.text(c, '«Не салынған?» деп емес,', 190, 470, { size: 74, weight: 800, align: 'left', alpha: K.u(t, l3.t + d * 0.3, l3.t + d * 0.3 + 0.6) });

@@ -100,7 +100,7 @@
           if (K.has(imgs[i])) K.framed(c, IMG[imgs[i]], 0, 0, 330, { frame: 10, color: '#F4F1EA' });
           else if (i === 1) K.circle(c, 0, 0, 140, C.ink); else { K.rect(c, -48, -150, 96, 300, C.ink); K.rect(c, -150, -48, 300, 96, C.ink); }
           c.restore(); });
-        K.text(c, names[i], x, 720, { size: 34, weight: 700, color: C.ink, spacing: 6, alpha: K.u(t, ev.shapes[i] + 0.2, ev.shapes[i] + 0.7) });
+        if (!K.has(imgs[i])) K.text(c, names[i], x, 720, { size: 34, weight: 700, color: C.ink, spacing: 6, alpha: K.u(t, ev.shapes[i] + 0.2, ev.shapes[i] + 0.7) });
       });
     });
     K.text(c, 'Казимир Малевич · 1915–1923', 960, VIEW.y + 70, { size: 26, weight: 700, color: '#3A332A', spacing: 4, alpha: K.u(t, ev.shapes[0], ev.shapes[0] + 0.8) });
@@ -195,7 +195,15 @@
     K.cam(c, { zoom: z, x: lerp(-gw * 0.17, 0, K.io(t, t0, e2.t - 0.4)), y: lerp(-gh * 0.14, 0, K.io(t, t0, e2.t - 0.4)) }, () => {
       list.forEach((n, i) => {
         const x = 960 - gw / 2 + (i % cols) * (cw + gap) + gap / 2, y = 540 - gh / 2 + Math.floor(i / cols) * (ch + gap) + gap / 2;
-        G.kenBurns(c, IMG[n], x, y, cw, ch, t, t0, S.end[1], { from: { zoom: 1, x: 0.5, y: 0.5 }, to: { zoom: 1.08, x: 0.5, y: 0.5 } });
+        K.noReg++; G.kenBurns(c, IMG[n], x, y, cw, ch, t, t0, S.end[1], { from: { zoom: 1, x: 0.5, y: 0.5 }, to: { zoom: 1.08, x: 0.5, y: 0.5 } }); K.noReg--;
+        // a small caption strip on every tile of the wall
+        const m = K.META[n]; if (m) {
+          c.save(); c.globalAlpha *= 0.72; c.fillStyle = '#0B0A09'; c.fillRect(x, y + ch - 46, cw, 46); c.restore();
+          const fit = (str, size, weight) => { c.font = `${weight} ${size}px ${K.SANS}`; let s = size; while (s > 10 && c.measureText(str).width > cw - 16) { s -= 1; c.font = `${weight} ${s}px ${K.SANS}`; } return s; };
+          const art = m[1].split(' · ')[0];
+          K.text(c, m[0], x + cw / 2, y + ch - 31, { size: fit(m[0], 16, 700), weight: 700 });
+          K.text(c, art, x + cw / 2, y + ch - 12, { size: fit(art, 13, 400), weight: 400, color: 'rgba(255,255,255,0.85)' });
+        }
       });
     });
     c.fillStyle = 'rgba(0,0,0,0.5)'; c.fillRect(0, 0, W, G.H);
