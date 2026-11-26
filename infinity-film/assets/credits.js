@@ -778,6 +778,13 @@
   "url": "https://commons.wikimedia.org/wiki/File:%D0%9A%D0%B0%D0%B7%D0%B0%D1%85%D1%81%D0%BA%D0%B8%D0%B9_%D0%B2%D0%BE%D0%B9%D0%BB%D0%BE%D1%87%D0%BD%D1%8B%D0%B9_%D0%BA%D0%BE%D0%B2%D0%B5%D1%80._%D0%97%D0%B0%D0%BF%D0%B0%D0%B4%D0%BD%D1%8B%D0%B9_%D0%9A%D0%B0%D0%B7%D0%B0%D1%85%D1%81%D1%82%D0%B0%D0%BD._%D0%9D%D0%B0%D1%87%D0%B0%D0%BB%D0%BE_20_%D0%B2.jpg"
  },
  {
+  "name": "k_feltrug",
+  "title": "Казахский войлочный ковер",
+  "author": "Книжная пыль",
+  "license": "CC BY 4.0",
+  "url": "https://commons.wikimedia.org/wiki/File:Казахский_войлочный_ковер.jpg"
+ },
+ {
   "name": "k_kebeje",
   "title": "Кебеже. ХIX ғ",
   "author": "Muzaffar Turgunov",
@@ -827,11 +834,32 @@
   "url": "https://commons.wikimedia.org/wiki/File:Kazakh_girl_in_a_yurt_on_Nauryz_day.jpg"
  },
  {
+  "name": "k_ubran",
+  "title": "Казахская Юрта, убранство 2",
+  "author": "Дамиля",
+  "license": "CC BY-SA 3.0",
+  "url": "https://commons.wikimedia.org/wiki/File:Казахская_Юрта,_убранство_2.JPG"
+ },
+ {
   "name": "k_shanyrak",
   "title": "Казахский шанарак",
   "author": "Alexandr frolov",
   "license": "CC BY-SA 4.0",
   "url": "https://commons.wikimedia.org/wiki/File:%D0%9A%D0%B0%D0%B7%D0%B0%D1%85%D1%81%D0%BA%D0%B8%D0%B9_%D1%88%D0%B0%D0%BD%D0%B0%D1%80%D0%B0%D0%BA.jpg"
+ },
+ {
+  "name": "k_orn",
+  "title": "Kazakh ornaments",
+  "author": "Akbota Bakyt",
+  "license": "CC BY-SA 4.0",
+  "url": "https://commons.wikimedia.org/wiki/File:Kazakh_ornaments.jpg"
+ },
+ {
+  "name": "k_belt",
+  "title": "Male's belt, XXth century",
+  "author": "PlainVector",
+  "license": "CC0",
+  "url": "https://commons.wikimedia.org/wiki/File:Male's_belt,_XXth_century.jpg"
  },
  {
   "name": "k_shezhire",
