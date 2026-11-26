@@ -1,7 +1,7 @@
 #!/bin/bash
 # The film under your own music: MUSIC=my-music/background.mp3 tools/finish_music.sh
 # With a narration track (out/voice.wav from node song.js, built from my-voice/ by tools/build_voice.py) the voice is
-# mixed in at 60 % beside the music at 40 %; without one (VOICE=0) the film has music only.
+# mixed in at 80 % beside the music at 20 % (BED=-20.5 for 60/40); without one (VOICE=0) the film has music only.
 # The music is levelled to −20.5 LUFS — the 40 % bed beside a narrator at about −17 LUFS — trimmed or padded to the
 # film and faded at the end. Writes out/final/<N>-1080p.mp4: 1920×1080, two-pass ≈ 4.4 Mbit/s (≈ 350 MB, small
 # enough for messengers). The picture is rendered at RES (default 1440) and scaled down, which keeps it sharper.
@@ -11,7 +11,9 @@ RES=${RES:-1440}; MUSIC=${MUSIC:-my-music/background.mp3}
 N=${NAME:-Шексіздік-пен-мәңгілік}; O=out/final; mkdir -p $O
 D=$(node -e "console.log(require('./score.js').DURATION)")
 VOICE=${VOICE:-1}
-ffmpeg -v error -y -i "$MUSIC" -af "loudnorm=I=-20.5:TP=-2:LRA=11:linear=true,apad,atrim=0:$D,afade=t=in:d=0.4,afade=t=out:st=$((D - 4)):d=4" -ar 48000 -ac 2 -c:a pcm_s16le out/user-bed.wav
+# music level: −29 LUFS = 20 % beside the voice (−17 LUFS, 80 %); −20.5 = 40 % (60/40)
+BED=${BED:--29}
+ffmpeg -v error -y -i "$MUSIC" -af "loudnorm=I=$BED:TP=-2:LRA=11:linear=true,apad,atrim=0:$D,afade=t=in:d=0.4,afade=t=out:st=$((D - 4)):d=4" -ar 48000 -ac 2 -c:a pcm_s16le out/user-bed.wav
 if [ "$RES" = "1080" ]; then SRC=out/video.mp4; else SRC=out/video-${RES}p.mp4; fi
 k=$(echo "$RES / 1080" | bc -l); px() { printf '%.0f' "$(echo "$1 * $k" | bc -l)"; }
 G="$(sed -e "s/crop=1920:818:0:131/crop=$(px 1920):$(px 818):0:$(px 131)/" -e "s/overlay=0:131/overlay=0:$(px 131)/" -e "s/sigma=26/sigma=$(px 26)/" tools/grade.filter)"
