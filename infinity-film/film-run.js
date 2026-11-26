@@ -41,17 +41,14 @@
         ['ЗАМАНАУИ ТЕХНОЛОГИЯЛАР', ['параметрлік, генеративтік жобалау', 'модуль өлшемі мен қайталану', 'бұрылу бұрышы мен аралық', 'ЖИ көмегімен нұсқалар іздеу', 'дерекпен, түпнұсқамен тексеру']],
         ['ЭТИКА, АЛГОРИТМ ЖӘНЕ БАҒАЛАУ', ['шығу тегі, мағынасы, авторлық құқық', 'қасиетті белгіні орынсыз қолданбау', 'мақсат → зерттеу → талдау → стилизация', 'материал → прототип → тексеру', 'қызмет, тұтастық, сәйкестік']]] },
   };
-  // the end: the steppe at sunset, the title and the credits
+  // the end: the steppe at sunset, the title and the text it is made from
   const endPainter = (c, t, sh) => {
     const img = IMG.my_1;
     if (img) G.kenBurns(c, img, 0, TOP, W, BOT - TOP, t, sh.start - 0.5, sh.end, { from: { zoom: 1.3, x: 0.45, y: 0.6 }, to: { zoom: 1.02, x: 0.5, y: 0.55 } });
     H.grade(c, 0.1, 0.3);
     c.fillStyle = `rgba(0,0,0,${0.66 * io(t, ev.fin - 0.4, ev.fin + 1.2)})`; c.fillRect(0, 0, W, HH);
     K.alpha(c, uu(t, ev.fin, ev.fin + 1.0), () => { K.shanyrak(c, CX, 230, 44, GOLD, 3, t * 0.08); K.text(c, 'ШЕКСІЗДІК ПЕН МӘҢГІЛІК', CX, 330, { size: 66, weight: 800, spacing: 5, shadow: 24 }); K.rect(c, CX - 200, 374, 400, 2, GOLD); });
-    const people = [...new Set((globalThis.CREDITS || []).filter((x) => x.license !== '—').map((x) => x.author.replace(/\s*\(.*$/, '')))];
-    const lines = ['Мәтін: «Қазақтың дәстүрлі қолөнеріндегі шексіздік пен мәңгілік идеясы»'];
-    let cur = 'Фото:'; for (const p of people) { if ((cur + ' · ' + p).length > 118) { lines.push(cur); cur = p; } else cur += (cur.endsWith(':') ? ' ' : ' · ') + p; }
-    lines.push(cur, 'Flickr, Wikimedia Commons · CC BY / BY-SA / BY-NC / BY-NC-SA / CC0');
+    const lines = ['Мәтін: «Қазақтың дәстүрлі қолөнеріндегі шексіздік пен мәңгілік идеясы»'];   // no photo credits on the end card (by request)
     lines.forEach((s, i) => K.text(c, s, CX, 430 + i * 34, { size: i === 0 ? 22 : 18, weight: 400, color: 'rgba(243,234,210,0.86)', alpha: uu(t, ev.fin + 0.8 + i * 0.15, ev.fin + 1.6 + i * 0.15) }));
   };
 
