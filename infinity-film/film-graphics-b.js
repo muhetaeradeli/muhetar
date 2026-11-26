@@ -377,6 +377,18 @@
       fields.forEach(([k, v, w], i) => { const q = w ? uu(t, at(sh.id, w) - 0.1, at(sh.id, w) + 0.4) : 1; K.text(c, k, x + 40, y + 118 + i * 52, { size: 24, weight: 700, align: 'left', color: '#7A5C3A', alpha: q }); K.text(c, v, x + 250, y + 118 + i * 52, { size: 24, weight: 400, align: 'left', color: INK, alpha: q }); });
     });
   };
+  // a quotation laid over a real photograph (lower left), its key term appearing when it is said
+  OV.cite = (o = {}) => (c, t, sh) => {
+    const a = uu(t, sh.start + 0.3, sh.start + 1.0); if (a <= 0) return;
+    K.alpha(c, a, () => {
+      const lines = wrap(c, o.text, 1060, 36, 700), x = 120, h = 150 + lines.length * 50, y = BOT - 70 - h;
+      box(c, x, y, 1180, h, 22, 'rgba(8,16,44,0.82)', 'rgba(226,182,89,0.7)');
+      K.text(c, '«', x + 50, y + 70, { size: 110, weight: 800, color: '#E2B659' });
+      lines.forEach((ln, i) => K.text(c, ln, x + 110, y + 62 + i * 50, { size: 36, weight: 700, align: 'left', color: '#FFF4DC' }));
+      K.text(c, o.by, x + 110, y + 70 + lines.length * 50, { size: 25, weight: 600, align: 'left', color: '#E8C46A' });
+      if (o.key) { const tk = at(sh.id, o.keyWord), q = uu(t, tk, tk + 0.6), kw = textW(c, o.key, 30, 800, 4) + 50; K.alpha(c, q, () => { box(c, 1920 - 120 - kw, TOP + 60, kw, 62, 31, '#E2B659', null); K.text(c, o.key, 1920 - 120 - kw / 2, TOP + 92, { size: 30, weight: 800, spacing: 4, color: '#0B1A44' }); }); }
+    });
+  };
   // a cross over something that must not be done
   OV.no = (o = {}) => (c, t, sh) => { const ta = o.at ?? sh.start + 1, k = uu(t, ta, ta + 0.6); if (k <= 0) return; c.save(); c.strokeStyle = `rgba(255,107,91,${0.9 * k})`; c.lineWidth = 12; c.beginPath(); c.arc(o.x ?? CX, o.y ?? CY, o.r ?? 200, 0, Math.PI * 2 * k); c.stroke(); if (k > 0.6) { c.beginPath(); c.moveTo((o.x ?? CX) - (o.r ?? 200) * 0.7, (o.y ?? CY) + (o.r ?? 200) * 0.7); c.lineTo((o.x ?? CX) + (o.r ?? 200) * 0.7, (o.y ?? CY) - (o.r ?? 200) * 0.7); c.stroke(); } c.restore(); };
   // a quotation card for a reference

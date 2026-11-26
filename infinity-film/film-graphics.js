@@ -33,7 +33,7 @@
 
   // ---------- backgrounds ----------
   // the felt «stage»: a carpet pattern, blurred and darkened, behind gold drawings
-  const STAGE = ['c_pattern', 'n2_shyrdak', 'n2_shyrdak2', 'n2_shanband', 'n2_yurtband', 'n2_textile', 'n2_yint3'];
+  const STAGE = ['c_pattern', 'k_syrmak', 'k_carpet', 'n2_shanband', 'n2_yurtband', 'k_feltrug', 'n2_yint3'];
   const pick = (id) => { let h = 7; for (const ch of String(id || '')) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return STAGE[h % STAGE.length]; };
   BG.stage = (c, t, sh, img) => {
     img = img || (IMG[pick(sh.id)] ? pick(sh.id) : 'c_pattern');

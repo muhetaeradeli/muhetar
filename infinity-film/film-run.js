@@ -51,7 +51,7 @@
     const people = [...new Set((globalThis.CREDITS || []).filter((x) => x.license !== '—').map((x) => x.author.replace(/\s*\(.*$/, '')))];
     const lines = ['Мәтін: «Қазақтың дәстүрлі қолөнеріндегі шексіздік пен мәңгілік идеясы»'];
     let cur = 'Фото:'; for (const p of people) { if ((cur + ' · ' + p).length > 118) { lines.push(cur); cur = p; } else cur += (cur.endsWith(':') ? ' ' : ' · ') + p; }
-    lines.push(cur, 'Flickr · CC BY / BY-SA / BY-NC / BY-NC-SA');
+    lines.push(cur, 'Flickr, Wikimedia Commons · CC BY / BY-SA / BY-NC / BY-NC-SA / CC0');
     lines.forEach((s, i) => K.text(c, s, CX, 430 + i * 34, { size: i === 0 ? 22 : 18, weight: 400, color: 'rgba(243,234,210,0.86)', alpha: uu(t, ev.fin + 0.8 + i * 0.15, ev.fin + 1.6 + i * 0.15) }));
   };
 

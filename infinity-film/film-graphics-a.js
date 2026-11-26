@@ -7,6 +7,8 @@
   const W = 1920;
   const { at, end, win, glowLine, star, hornsUp, scroll, lissajous, spiralPts, circlePts, arrowHead, caps, big, small, rosette, sprout } = H;
   const io = (t, a, b) => K.io(t, a, b), uu = (t, a, b) => K.u(t, a, b);
+  const textW = (c, s, size, weight = 700, spacing = 0) => { c.save(); c.font = `${weight} ${size}px ${K.SANS}`; c.letterSpacing = `${spacing}px`; const w = c.measureText(s).width; c.restore(); return w; };
+  const box = (c, x, y, w, h, r, fill, stroke, lw = 2) => { c.save(); c.beginPath(); c.roundRect(x, y, w, h, r); if (fill) { c.fillStyle = fill; c.fill(); } if (stroke) { c.strokeStyle = stroke; c.lineWidth = lw; c.stroke(); } c.restore(); };
   const title = (c, t, s, a, b = Infinity) => caps(c, s, CX, TOP + 70, { size: 28, alpha: win(t, a, b, 0.5, 0.5) });
 
   // ============ ORNAMENT (drawn on the felt stage) ============
@@ -94,15 +96,34 @@
     if (o.border) { const sb = uu(t, o.border, o.border + 1.2); if (sb > 0) K.alpha(c, sb, () => { scroll(c, TOP + 46, 22, 90, t, { lw: 4, k: sb }); scroll(c, BOT - 46, 22, 90, t, { lw: 4, k: sb, dir: -1 }); }); caps(c, '«ШЕТ ОЮ»', 1590, CY, { size: 30, alpha: sb }); }
     (o.labels || [['«БІТПЕС»', a + 0.3]]).forEach(([s, tt], i) => caps(c, s, 330, CY - 30 + i * 60, { size: 30, alpha: uu(t, tt, tt + 0.6) }));
   };
+  // «төртқұлақ»: four ram's-horn arms (қошқар мүйіз) spreading from a centre rhombus to the four sides, a small
+  // horn pair between them; o.bg = a photograph behind; o.four / o.turn = when «төрт бағытқа» / «айналмалы» are said
+  const ramArm = (c, len, curl, lw, k, color = GOLD) => {
+    if (k <= 0) return;
+    c.save(); c.strokeStyle = color; c.lineWidth = lw; c.lineCap = 'round'; c.lineJoin = 'round'; c.shadowColor = 'rgba(255,190,90,0.7)'; c.shadowBlur = 12;
+    const ks = clamp(k / 0.35), kc = clamp((k - 0.35) / 0.65);
+    c.beginPath(); c.moveTo(0, 0); c.lineTo(0, -len * ks); c.stroke();
+    if (kc > 0) for (const sd of [-1, 1]) {
+      c.beginPath(); const n = Math.max(2, Math.round(80 * kc));
+      for (let i = 0; i <= n; i++) { const th = (i / 80) * Math.PI * 2.3, r = curl * lerp(1, 0.18, i / 80), x = sd * curl - sd * Math.cos(th) * r, y = -len - Math.sin(th) * r; if (i) c.lineTo(x, y); else c.moveTo(x, y); }
+      c.stroke();
+    }
+    c.restore();
+  };
   GR.tortkulak = (o = {}) => (c, t, sh) => {
-    if (!o.noBg) BG.stage(c, t, sh);
-    const a = sh.start + 0.2;
-    c.save(); c.translate(CX, CY); c.rotate((t - a) * (o.spin ?? 0.12));
-    c.strokeStyle = 'rgba(226,182,89,0.5)'; c.lineWidth = 2; c.strokeRect(-250, -250, 500, 500);
-    for (let i = 0; i < 4; i++) { c.save(); c.rotate(i * Math.PI / 2); hornsUp(c, 150, GOLD, 6, io(t, a + i * 0.3, a + 1.6 + i * 0.3)); c.restore(); }
-    c.restore(); K.circle(c, CX, CY, 12, PALE);
-    if (o.arrows) { const k = uu(t, o.arrows, o.arrows + 0.8); K.alpha(c, k, () => { for (let i = 0; i < 4; i++) { const an = i * Math.PI / 2; const x = CX + Math.cos(an) * 360, y = CY + Math.sin(an) * 330; arrowHead(c, x, y, an, 16); } caps(c, 'ТЕПЕ-ТЕҢДІК', CX, BOT - 60, { size: 26, color: CREAM }); }); }
-    caps(c, o.label || '«ТӨРТҚҰЛАҚ»', CX, TOP + 70, { size: 28, alpha: uu(t, a + 0.2, a + 0.9) });
+    if (o.bg) o.bg(c, t, sh); else if (!o.noBg) BG.stage(c, t, sh);
+    const a = sh.start + 0.2, turn = o.turn ? io(t, o.turn, o.turn + 2.2) : 0;
+    c.save(); c.translate(CX, CY); c.rotate(turn * Math.PI / 2);
+    const R = 92, kr = io(t, a, a + 0.6);
+    c.save(); c.strokeStyle = GOLD; c.lineWidth = 6; c.shadowColor = 'rgba(255,190,90,0.7)'; c.shadowBlur = 12; c.globalAlpha = kr;
+    c.beginPath(); c.moveTo(0, -R); c.lineTo(R, 0); c.lineTo(0, R); c.lineTo(-R, 0); c.closePath(); c.stroke();
+    c.beginPath(); c.moveTo(0, -R * 0.45); c.lineTo(R * 0.45, 0); c.lineTo(0, R * 0.45); c.lineTo(-R * 0.45, 0); c.closePath(); c.stroke(); c.restore();
+    for (let i = 0; i < 4; i++) { c.save(); c.rotate(i * Math.PI / 2); c.translate(0, -R); ramArm(c, 104, 60, 8, io(t, a + 0.3 + i * 0.25, a + 1.7 + i * 0.25)); c.restore(); }
+    for (let i = 0; i < 4; i++) { c.save(); c.rotate(Math.PI / 4 + i * Math.PI / 2); c.translate(0, -R * 0.78); ramArm(c, 46, 26, 5, io(t, a + 1.4 + i * 0.15, a + 2.4 + i * 0.15), PALE); c.restore(); }
+    c.restore();
+    if (o.four) { const k = uu(t, o.four, o.four + 0.8); K.alpha(c, k, () => { for (let i = 0; i < 4; i++) { const an = -Math.PI / 2 + i * Math.PI / 2, x = CX + Math.cos(an) * 400, y = CY + Math.sin(an) * 300; arrowHead(c, x, y, an, 18); } }); }
+    caps(c, o.label || '«ТӨРТҚҰЛАҚ»', CX, TOP + 60, { size: 30, alpha: uu(t, a + 0.2, a + 0.9) });
+    if (o.note) small(c, o.note, CX, BOT - 50, { italic: true, alpha: uu(t, a + 1, a + 1.6) });
   };
   // mirror symmetry (a half is drawn, then mirrored), then turning symmetry (four copies)
   GR.symmetry = (o = {}) => (c, t, sh) => {
@@ -299,16 +320,34 @@
   // a family tree that grows from one root, generation after generation (шежіре)
   GR.tree = (o = {}) => (c, t, sh) => {
     (o.bg || BG.stage)(c, t, sh);
-    const a = sh.start + 0.3, levels = 5, dy = 130, y0 = BOT - 110;
-    const nodes = [[[CX, y0]]];
-    for (let l = 1; l < levels; l++) { const prev = nodes[l - 1], row = []; prev.forEach(([x], j) => { const sp = 420 / Math.pow(1.75, l - 1); const kids = l < 3 ? 2 : (j % 2 ? 1 : 2); for (let q = 0; q < kids; q++) row.push([x + (q - (kids - 1) / 2) * sp, y0 - l * dy, j]); }); nodes.push(row); }
-    nodes.forEach((row, l) => row.forEach(([x, y, p], j) => {
-      const k = io(t, a + l * 0.7 + j * 0.05, a + l * 0.7 + 0.6 + j * 0.05); if (k <= 0) return;
-      if (l > 0) { const [px, py] = nodes[l - 1][p]; glowLine(c, [[px, py], [px, (py + y) / 2], [x, (py + y) / 2], [x, y]], k, { lw: 3, glow: 6 }); }
-      K.circle(c, x, y, 13 * k, NAVY, GOLD, 3);
-    }));
-    caps(c, o.label || 'ШЕЖІРЕ', CX, TOP + 70, { size: 30, alpha: uu(t, a, a + 0.6) });
-    if (o.side) o.side.forEach(([s, w], i) => { const tw = at(sh.id, w); caps(c, s, 1400, TOP + 230 + i * 70, { size: 24, color: CREAM, align: 'left', alpha: uu(t, tw - 0.1, tw + 0.5) }); });
+    const a = sh.start + 0.3;
+    if (o.names) {   // a named шежіре: root at the bottom, then its branches, then theirs ([name, [children]])
+      const root = o.names, y0 = BOT - 95, dy = 200, leaves = [];
+      const walk = (n, l) => { if (!n[1] || !n[1].length) { leaves.push(n); n.l = l; return; } n[1].forEach((ch) => walk(ch, l + 1)); n.l = l; };
+      walk(root, 0);
+      const x0 = 150, x1 = W - 150, step = (x1 - x0) / (leaves.length - 1 || 1);
+      leaves.forEach((n, i) => { n.x = x0 + i * step; });
+      const place = (n) => { if (n[1] && n[1].length) { n[1].forEach(place); n.x = (n[1][0].x + n[1][n[1].length - 1].x) / 2; } n.y = y0 - n.l * dy; };
+      place(root);
+      const draw = (n) => {
+        const k = io(t, a + n.l * 0.8, a + n.l * 0.8 + 0.7); if (k <= 0) return;
+        (n[1] || []).forEach((ch) => { const kk = io(t, a + ch.l * 0.8 - 0.3, a + ch.l * 0.8 + 0.4); if (kk > 0) glowLine(c, [[n.x, n.y - 26], [n.x, (n.y + ch.y) / 2], [ch.x, (n.y + ch.y) / 2], [ch.x, ch.y + 26]], kk, { lw: 3, glow: 6 }); draw(ch); });
+        const big = n.l < 2, sz = n.l === 0 ? 34 : n.l === 1 ? 28 : 22, tw = textW(c, n[0], sz, 800, 2) + (big ? 44 : 26), h = big ? 54 : 44;
+        K.alpha(c, k, () => { box(c, n.x - tw / 2, n.y - h / 2, tw, h, h / 2, n.l === 0 ? '#E2B659' : 'rgba(11,26,68,0.92)', GOLD); K.text(c, n[0], n.x, n.y + 1, { size: sz, weight: 800, spacing: 2, color: n.l === 0 ? '#0B1A44' : PALE }); });
+      };
+      draw(root);
+    } else {
+      const levels = 5, dy = 130, y0 = BOT - 110;
+      const nodes = [[[CX, y0]]];
+      for (let l = 1; l < levels; l++) { const prev = nodes[l - 1], row = []; prev.forEach(([x], j) => { const sp = 420 / Math.pow(1.75, l - 1); const kids = l < 3 ? 2 : (j % 2 ? 1 : 2); for (let q = 0; q < kids; q++) row.push([x + (q - (kids - 1) / 2) * sp, y0 - l * dy, j]); }); nodes.push(row); }
+      nodes.forEach((row, l) => row.forEach(([x, y, p], j) => {
+        const k = io(t, a + l * 0.7 + j * 0.05, a + l * 0.7 + 0.6 + j * 0.05); if (k <= 0) return;
+        if (l > 0) { const [px, py] = nodes[l - 1][p]; glowLine(c, [[px, py], [px, (py + y) / 2], [x, (py + y) / 2], [x, y]], k, { lw: 3, glow: 6 }); }
+        K.circle(c, x, y, 13 * k, NAVY, GOLD, 3);
+      }));
+    }
+    caps(c, o.label || 'ШЕЖІРЕ', CX, TOP + 60, { size: 30, alpha: uu(t, a, a + 0.6) });
+    if (o.side) o.side.forEach(([s, w], i, arr) => { const tw = at(sh.id, w); caps(c, s, CX + (i - (arr.length - 1) / 2) * 420, TOP + 115, { size: 22, color: CREAM, alpha: uu(t, tw - 0.1, tw + 0.5) }); });
   };
   // seven generations, linked, the oldest on the left (an overlay)
   OV.jeti = (id, o = {}) => (c, t) => {
