@@ -48,8 +48,9 @@
     H.grade(c, 0.1, 0.3);
     c.fillStyle = `rgba(0,0,0,${0.66 * io(t, ev.fin - 0.4, ev.fin + 1.2)})`; c.fillRect(0, 0, W, HH);
     K.alpha(c, uu(t, ev.fin, ev.fin + 1.0), () => { K.shanyrak(c, CX, 230, 44, GOLD, 3, t * 0.08); K.text(c, 'ШЕКСІЗДІК ПЕН МӘҢГІЛІК', CX, 330, { size: 66, weight: 800, spacing: 5, shadow: 24 }); K.rect(c, CX - 200, 374, 400, 2, GOLD); });
-    const lines = ['Мәтін: «Қазақтың дәстүрлі қолөнеріндегі шексіздік пен мәңгілік идеясы»'];   // no photo credits on the end card (by request)
-    lines.forEach((s, i) => K.text(c, s, CX, 430 + i * 34, { size: i === 0 ? 22 : 18, weight: 400, color: 'rgba(243,234,210,0.86)', alpha: uu(t, ev.fin + 0.8 + i * 0.15, ev.fin + 1.6 + i * 0.15) }));
+    // the makers of the film (no photo credits on the end card, by request)
+    K.text(c, 'ОРЫНДАҒАНДАР', CX, 432, { size: 20, weight: 600, spacing: 4, color: GOLD, alpha: uu(t, ev.fin + 0.8, ev.fin + 1.6) });
+    ['Әділ Мұхтар', 'Сәлімгерей Қарақат'].forEach((s, i) => K.text(c, s, CX, 486 + i * 52, { size: 38, weight: 700, shadow: 18, alpha: uu(t, ev.fin + 1.0 + i * 0.2, ev.fin + 1.8 + i * 0.2) }));
   };
 
   // ---------- the shot list ----------
